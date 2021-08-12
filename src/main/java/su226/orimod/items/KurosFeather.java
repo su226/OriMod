@@ -140,7 +140,7 @@ public class KurosFeather extends Item implements IEquipable {
     boolean gliding = this.canGlide(owner);
     IKurosFeather cap = owner.getCapability(Capabilities.KUROS_FEATHER, null);
     if (cap.isPrevGliding() != gliding) {
-      if (!owner.world.isRemote) {
+      if (owner.world.isRemote) {
         SoundMessage.play(owner, gliding ? Sounds.GLIDE_START : Sounds.GLIDE_END);
       }
       cap.setPrevGliding(gliding);

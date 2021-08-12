@@ -76,7 +76,7 @@ public class SpiritFlameParticle extends Particle {
 
   @Override
   public void renderParticle(BufferBuilder buffer, Entity entity, float partialTicks, float rotationX, float rotationZ, float rotationYZ, float rotationXY, float rotationXZ) {
-    GlStateManager.disableLighting();
+    // GlStateManager.disableLighting();
     GlStateManager.disableTexture2D();
     OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, 240, 240);
     GlStateManager.pushMatrix();
@@ -106,6 +106,6 @@ public class SpiritFlameParticle extends Particle {
     drawSide(-1, -1);
     GlStateManager.popMatrix();
     GlStateManager.enableTexture2D();
-    GlStateManager.enableLighting();
+    // GlStateManager.enableLighting();
   }
 }

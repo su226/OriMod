@@ -9,6 +9,7 @@ import net.minecraftforge.client.event.TextureStitchEvent;
 import net.minecraftforge.event.AttachCapabilitiesEvent;
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.fml.common.gameevent.TickEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent.ClientTickEvent;
 import net.minecraftforge.fml.relauncher.Side;
 import su226.orimod.capabilities.IChargeable;
@@ -71,6 +72,8 @@ public class ClientProxy extends CommonProxy {
 
   @SubscribeEvent
   public static void clientTick(ClientTickEvent event) {
-    tick++;
+    if (event.phase == TickEvent.Phase.END) {
+      tick++;
+    }
   }
 }

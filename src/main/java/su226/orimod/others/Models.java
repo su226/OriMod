@@ -42,6 +42,8 @@ import su226.orimod.Mod;
 import su226.orimod.entities.Arrow;
 import su226.orimod.items.Items;
 import su226.orimod.items.Shard;
+import su226.orimod.particles.ChargeFlameParticle;
+import su226.orimod.particles.SpiritArcParticle;
 
 @SideOnly(Side.CLIENT)
 public class Models {
@@ -277,5 +279,7 @@ public class Models {
 
   public static void setTexture(TextureMap map) {
     Items.KUROS_FEATHER.setTexture(map);
+    ChargeFlameParticle.setTexture(map);
+    SpiritArcParticle.setTexture(map);
   }
 }

@@ -5,7 +5,9 @@ import java.util.Map;
 import org.spongepowered.asm.launch.MixinBootstrap;
 
 import net.minecraftforge.fml.relauncher.IFMLLoadingPlugin;
+import net.minecraftforge.fml.relauncher.IFMLLoadingPlugin.MCVersion;
 
+@MCVersion("1.12.2")
 public class CoreMod implements IFMLLoadingPlugin {
   public CoreMod() {
     MixinBootstrap.init();

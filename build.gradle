@@ -71,3 +71,9 @@ processResources {
         exclude 'mcmod.info'
     }
 }
+
+// For some dirty VSCode debug hacks
+task writeClasspath << {
+    buildDir.mkdirs()
+    new File(buildDir, "classpath.txt").text = sourceSets.main.runtimeClasspath.collect { it.absolutePath }.join(':')
+}

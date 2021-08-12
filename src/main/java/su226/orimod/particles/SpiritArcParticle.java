@@ -1,39 +1,28 @@
 package su226.orimod.particles;
 
+import net.minecraft.client.particle.Particle;
+import net.minecraft.client.renderer.texture.TextureAtlasSprite;
+import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import su226.orimod.others.Util;
 
-public class SpiritArcParticle extends Base2DParticle {
-  private static final ResourceLocation TEXTURE = Util.getLocation("textures/particle/spirit_arc.png");
+public class SpiritArcParticle extends Particle {
+  private static final ResourceLocation TEXTURE = Util.getLocation("particle/spirit_arc");
+  private static TextureAtlasSprite ATLAS;
 
   public SpiritArcParticle(World world, Vec3d pos, Vec3d velocity) {
     super(world, pos.x, pos.y, pos.z, velocity.x, velocity.y, velocity.z);
+    this.setParticleTexture(ATLAS);
   }
 
   @Override
-  protected double getMinU() {
-    return 0;
-  }
-
-  @Override
-  protected double getMinV() {
-    return 0;
-  }
-
-  @Override
-  protected double getMaxU() {
+  public int getFXLayer() {
     return 1;
   }
-
-  @Override
-  protected double getMaxV() {
-    return 1;
-  }
-
-  @Override
-  protected ResourceLocation getTexture() {
-    return TEXTURE;
+  
+  public static void setTexture(TextureMap map) {
+    ATLAS = map.registerSprite(TEXTURE);
   }
 }

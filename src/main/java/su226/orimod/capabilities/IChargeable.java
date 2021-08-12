@@ -38,10 +38,10 @@ public interface IChargeable {
 
     @Override
     public boolean blink(int interval) {
-      if (ClientProxy.tick - lastFlash >= 4) {
+      if (ClientProxy.tick - lastFlash >= interval * 2) {
         lastFlash = ClientProxy.tick;
       }
-      return ClientProxy.tick - lastFlash < 2;
+      return ClientProxy.tick - lastFlash < interval;
     }
 
     @Override

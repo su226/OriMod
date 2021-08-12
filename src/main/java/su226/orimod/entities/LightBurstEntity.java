@@ -105,7 +105,9 @@ public class LightBurstEntity extends EntityThrowable {
         } else {
           hit = ray2.hitVec;
         }
-        ray.entityHit.attackEntityFrom(DamageSource.causeExplosionDamage(this.thrower), (float)Config.LIGHT_BURST.DAMAGE);
+        if (ray.entityHit != this.thrower) {
+          ray.entityHit.attackEntityFrom(DamageSource.causeExplosionDamage(this.thrower), (float)Config.LIGHT_BURST.DAMAGE);
+        }
       } else {
         hit = ray.hitVec;
       }

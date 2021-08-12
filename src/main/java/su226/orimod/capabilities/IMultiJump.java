@@ -10,7 +10,6 @@ import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.CapabilityManager;
 import net.minecraftforge.common.capabilities.ICapabilityProvider;
 import net.minecraftforge.common.capabilities.Capability.IStorage;
-import su226.orimod.Mod;
 
 public interface IMultiJump {
   static class Storage implements IStorage<IMultiJump> {
@@ -56,7 +55,6 @@ public interface IMultiJump {
 
     @Override
     public boolean doJump() {
-      Mod.LOG.info(this.countLeft);
       if (this.countLeft > 0) {
         this.countLeft--;
         return true;
