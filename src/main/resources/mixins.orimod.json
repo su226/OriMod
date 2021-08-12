@@ -1,0 +1,9 @@
+{
+  "compatibilityLevel": "JAVA_8",
+  "package": "su226.orimod.mixins",
+  "mixins": [],
+  "client": [
+    "MixinModelPlayer"
+  ],
+  "server": []
+}

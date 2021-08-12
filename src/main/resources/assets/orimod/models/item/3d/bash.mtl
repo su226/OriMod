@@ -1,0 +1,8 @@
+# Blender MTL File: 'bash.blend'
+# Material Count: 1
+
+newmtl BaseMaterial
+Ka 1.000000 1.000000 1.000000
+Kd 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+d 1.000000

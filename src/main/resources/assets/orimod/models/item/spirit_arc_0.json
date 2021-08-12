@@ -1,0 +1,7 @@
+{
+  "parent": "orimod:item/spirit_arc",
+  "textures": {
+    "layer0": "orimod:items/spirit_arc_0",
+    "layer1": "orimod:items/spirit_arc_arrow_0"
+  }
+}

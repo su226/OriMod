@@ -1,0 +1,157 @@
+{
+  "bash_start": {
+    "subtitle": "orimod.sound.bash_start",
+    "sounds": ["orimod:bash_start"]
+  },
+  "bash_no_target": {
+    "subtitle": "orimod.sound.bash_no_target",
+    "sounds": ["orimod:bash_no_target"]
+  },
+  "bash_timeout": {
+    "category": "player",
+    "subtitle": "orimod.sound.bash_timeout",
+    "sounds": ["orimod:bash_timeout"]
+  },
+  "bash_end": {
+    "subtitle": "orimod.sound.bash_end",
+    "sounds": [
+      "orimod:bash_end_1",
+      "orimod:bash_end_2",
+      "orimod:bash_end_3"
+    ]
+  },
+  "charge_flame_end": {
+    "subtitle": "orimod.sound.charge_flame_end",
+    "sounds": [
+      "orimod:charge_flame_end_1",
+      "orimod:charge_flame_end_2",
+      "orimod:charge_flame_end_3"
+    ]
+  },
+  "charge_flame_loop": {
+    "subtitle": "orimod.sound.charge_flame_loop",
+    "sounds": [
+      "orimod:charge_flame_loop_1",
+      "orimod:charge_flame_loop_2"
+    ]
+  },
+  "spirit_flame_hit": {
+    "subtitle": "orimod.sound.spirit_flame_hit",
+    "sounds": [
+      "orimod:spirit_flame_hit_1",
+      "orimod:spirit_flame_hit_2",
+      "orimod:spirit_flame_hit_3"
+    ]
+  },
+  "spirit_flame_throw": {
+    "subtitle": "orimod.sound.spirit_flame_throw",
+    "sounds": [
+      "orimod:spirit_flame_throw_1",
+      "orimod:spirit_flame_throw_2",
+      "orimod:spirit_flame_throw_3"
+    ]
+  },
+  "glide_start": {
+    "subtitle": "orimod.sound.glide_start",
+    "sounds": [
+      "orimod:glide_1",
+      "orimod:glide_2",
+      "orimod:glide_3"
+    ]
+  },
+  "glide_end": {
+    "subtitle": "orimod.sound.glide_end",
+    "sounds": [
+      "orimod:glide_1",
+      "orimod:glide_2",
+      "orimod:glide_3"
+    ]
+  },
+  "spirit_arc_draw": {
+    "subtitle": "orimod.sound.spirit_arc_draw",
+    "sounds": [
+      "orimod:spirit_arc_draw_1",
+      "orimod:spirit_arc_draw_2",
+      "orimod:spirit_arc_draw_3",
+      "orimod:spirit_arc_draw_4"
+    ]
+  },
+  "spirit_arc_shoot": {
+    "subtitle": "orimod.sound.spirit_arc_shoot",
+    "sounds": [
+      "orimod:spirit_arc_shoot_1",
+      "orimod:spirit_arc_shoot_2",
+      "orimod:spirit_arc_shoot_3",
+      "orimod:spirit_arc_shoot_4",
+      "orimod:spirit_arc_shoot_5"
+    ]
+  },
+  "arrow_hit_entity": {
+    "subtitle": "orimod.sound.arrow_hit_entity",
+    "sounds": [
+      "orimod:arrow_hit_entity_1",
+      "orimod:arrow_hit_entity_2",
+      "orimod:arrow_hit_entity_3",
+      "orimod:arrow_hit_entity_4",
+      "orimod:arrow_hit_entity_5"
+    ]
+  },
+  "arrow_hit_ground": {
+    "subtitle": "orimod.sound.arrow_hit_ground",
+    "sounds": [
+      "orimod:arrow_hit_ground_1",
+      "orimod:arrow_hit_ground_2",
+      "orimod:arrow_hit_ground_3",
+      "orimod:arrow_hit_ground_4",
+      "orimod:arrow_hit_ground_5"
+    ]
+  },
+  "light_burst_start": {
+    "subtitle": "orimod.sound.light_burst_start",
+    "sounds": [
+      "orimod:light_burst_start_1",
+      "orimod:light_burst_start_2",
+      "orimod:light_burst_start_3"
+    ]
+  },
+  "light_burst_throw": {
+    "subtitle": "orimod.sound.light_burst_throw",
+    "sounds": [
+      "orimod:light_burst_throw_1",
+      "orimod:light_burst_throw_2",
+      "orimod:light_burst_throw_3"
+    ]
+  },
+  "light_burst_hit_entity": {
+    "subtitle": "orimod.sound.light_burst_hit_entity",
+    "sounds": [
+      "orimod:light_burst_hit_entity_1",
+      "orimod:light_burst_hit_entity_2",
+      "orimod:light_burst_hit_entity_3",
+      "orimod:light_burst_hit_entity_4",
+      "orimod:light_burst_hit_entity_5",
+      "orimod:light_burst_hit_entity_6"
+    ]
+  },
+  "light_burst_hit_ground": {
+    "subtitle": "orimod.sound.light_burst_hit_ground",
+    "sounds": [
+      "orimod:light_burst_hit_ground_1",
+      "orimod:light_burst_hit_ground_2",
+      "orimod:light_burst_hit_ground_3",
+      "orimod:light_burst_hit_ground_4",
+      "orimod:light_burst_hit_ground_5",
+      "orimod:light_burst_hit_ground_6"
+    ]
+  },
+  "multi_jump": {
+    "subtitle": "orimod.sound.multi_jump",
+    "sounds": [
+      "orimod:multi_jump_1",
+      "orimod:multi_jump_2",
+      "orimod:multi_jump_3",
+      "orimod:multi_jump_4",
+      "orimod:multi_jump_5"
+    ]
+  }
+}
