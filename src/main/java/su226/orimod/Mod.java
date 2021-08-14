@@ -5,8 +5,10 @@ import net.minecraftforge.fml.common.Mod.EventHandler;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
+import net.minecraftforge.fml.common.event.FMLServerStartingEvent;
 import net.minecraftforge.fml.common.network.NetworkRegistry;
 import net.minecraftforge.fml.common.network.simpleimpl.SimpleNetworkWrapper;
+import su226.orimod.commands.Commands;
 
 import org.apache.logging.log4j.Logger;
 
@@ -37,5 +39,10 @@ public class Mod {
   @EventHandler
   public void postInit(FMLPostInitializationEvent event) {
     PROXY.postInit();
+  }
+  
+  @EventHandler
+  public static void onServerStarting(FMLServerStartingEvent event) {
+    Commands.register(event);
   }
 }

@@ -1,10 +1,13 @@
 package su226.orimod.entities;
 
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.OpenGlHelper;
+import net.minecraft.client.renderer.block.model.ItemCameraTransforms.TransformType;
 import net.minecraft.client.renderer.entity.RenderManager;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.projectile.EntityThrowable;
+import net.minecraft.item.ItemStack;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.RayTraceResult;
@@ -17,6 +20,7 @@ import net.minecraftforge.fml.common.registry.EntityEntryBuilder;
 import net.minecraftforge.registries.IForgeRegistry;
 import su226.orimod.Config;
 import su226.orimod.Mod;
+import su226.orimod.items.Items;
 import su226.orimod.items.LightBurst;
 import su226.orimod.items.SpiritFlame;
 import su226.orimod.messages.LightBurstMessage;
@@ -32,9 +36,13 @@ public class LightBurstEntity extends EntityThrowable {
 
   public static class Render extends net.minecraft.client.renderer.entity.Render<LightBurstEntity> {
     public static Factory FACTORY = new Factory();
+    public static ItemStack STACK;
 
     public Render(RenderManager manager) {
       super(manager);
+      if (!Config.ENABLE_3D) {
+        STACK = new ItemStack(Items.LIGHT_BURST);
+      }
     }
 
     @Override
@@ -45,14 +53,21 @@ public class LightBurstEntity extends EntityThrowable {
     @Override
     public void doRender(LightBurstEntity entity, double x, double y, double z, float yaw, float partialTicks) {
       GlStateManager.pushMatrix();
-      GlStateManager.enableCull();
       GlStateManager.disableLighting();
       OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, 240, 240);
-      GlStateManager.translate(x - 0.5, y - 0.5, z - 0.5);
-      Models.renderItemModel(LightBurst.MODEL);
-      GlStateManager.translate(-0.05, -0.05, -0.05);
-      GlStateManager.scale(1.1, 1.1, 1.1);
-      Models.renderItemModel(SpiritFlame.MODEL_OVERLAY, LightBurst.GLOW_COLOR);
+      if (Config.ENABLE_3D) {
+        GlStateManager.translate(x - 0.5, y - 0.5, z - 0.5);
+        GlStateManager.enableCull();
+        Models.renderItemModel(LightBurst.MODEL);
+        GlStateManager.translate(-0.05, -0.05, -0.05);
+        GlStateManager.scale(1.1, 1.1, 1.1);
+        Models.renderItemModel(SpiritFlame.MODEL_OVERLAY, LightBurst.GLOW_COLOR);
+      } else {
+        GlStateManager.translate(x, y, z);
+        GlStateManager.rotate(180 - renderManager.playerViewY, 0, 1, 0);
+        GlStateManager.rotate((renderManager.options.thirdPersonView == 2 ? -1 : 1) * -renderManager.playerViewX, 1, 0, 0);
+        Minecraft.getMinecraft().getRenderItem().renderItem(STACK, TransformType.GROUND);
+      }
       GlStateManager.enableLighting();
       GlStateManager.popMatrix();
     }

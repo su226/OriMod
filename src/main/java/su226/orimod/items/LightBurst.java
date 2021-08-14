@@ -20,6 +20,7 @@ import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import su226.orimod.Config;
+import su226.orimod.blocks.SpiritSmithingTable;
 import su226.orimod.capabilities.Capabilities;
 import su226.orimod.capabilities.IChargeable;
 import su226.orimod.entities.LightBurstEntity;
@@ -35,7 +36,8 @@ public class LightBurst extends Item {
       GlStateManager.pushMatrix();
       GlStateManager.enableCull();
       GlStateManager.disableLighting();
-      double charge = stack.getCapability(Capabilities.CHARGEABLE, null).getCharge();
+      IChargeable cap = stack.getCapability(Capabilities.CHARGEABLE, null);
+      double charge = cap == null ? 0 : cap.getCharge();
       float lightness = (float)Math.pow(charge, 3) * 176 + 64;
       OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, lightness, lightness);
       Models.renderItemModel(MODEL);
@@ -60,6 +62,11 @@ public class LightBurst extends Item {
     this.setUnlocalizedName(Util.getI18nKey("light_burst"));
     this.setCreativeTab(Items.CREATIVE_TAB);
     this.setMaxStackSize(1);
+    SpiritSmithingTable.registerRecipe(new SpiritSmithingTable.Recipe(
+      new ItemStack(net.minecraft.init.Items.FIRE_CHARGE),
+      new ItemStack(this),
+      300
+    ));
   }
 
   @SideOnly(Side.CLIENT)
@@ -74,7 +81,9 @@ public class LightBurst extends Item {
 
   @SideOnly(Side.CLIENT)
   public void loadModel() {
-    MODEL = Models.loadItemModel("item/3d/light_burst.obj");
+    if (Config.ENABLE_3D) {
+      MODEL = Models.loadItemModel("item/3d/light_burst.obj");
+    }
   }
 
   @Override

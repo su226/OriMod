@@ -1,4 +1,4 @@
-package su226.orimod.items;
+package su226.orimod.items.shards;
 
 import java.util.List;
 import java.util.function.BiPredicate;
@@ -10,6 +10,7 @@ import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.OpenGlHelper;
 import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.renderer.block.model.ItemCameraTransforms.TransformType;
+import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.client.renderer.tileentity.TileEntityItemStackRenderer;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
@@ -23,6 +24,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import su226.orimod.ClientProxy;
 import su226.orimod.Config;
 import su226.orimod.capabilities.IEquipper.IEquipable;
+import su226.orimod.items.Items;
 import su226.orimod.others.Models;
 import su226.orimod.others.Util;
 
@@ -53,7 +55,8 @@ public abstract class Shard extends Item implements IEquipable {
       Models.renderItemModel(MODEL, 0xcc192433);
       GlStateManager.disableLighting();
       OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, 240, 240);
-      Models.drawSquare(new Vec3d(0.296875, 0.59375, 0.55), new Vec3d(0.296875, 0.1875, 0.55), new Vec3d(0.703125, 0.1875, 0.55), this.shard.texture);
+      double z = Config.ENABLE_3D ? 0.55 : 0.53126;
+      Models.drawSquare(new Vec3d(0.296875, 0.59375, z), new Vec3d(0.296875, 0.1875, z), new Vec3d(0.703125, 0.1875, z), this.shard.texture);
       GlStateManager.enableLighting();
       GlStateManager.translate(0.5, 0.5, 0.5);
       float tick = ClientProxy.tick + Minecraft.getMinecraft().getRenderPartialTicks();
@@ -110,10 +113,10 @@ public abstract class Shard extends Item implements IEquipable {
   private int level;
   private int maxLevel;
 
-  public Shard(String name, ResourceLocation texture, int level, int maxLevel) {
+  public Shard(String name, String texture, int level, int maxLevel) {
     super();
     this.regName = "shard_" + name;
-    this.texture = texture;
+    this.texture = Util.getLocation(String.format("textures/items/shards/%s.png", texture));
     this.level = level;
     this.maxLevel = maxLevel;
     this.setRegistryName(Util.getLocation(regName));
@@ -143,7 +146,11 @@ public abstract class Shard extends Item implements IEquipable {
     if (Config.ENABLE_3D) {
       MODEL = Models.loadItemModel("item/3d/shard.obj");
     } else {
-      MODEL = Models.loadItemModel("item/shard.json");
+      MODEL = Models.loadItemModel("item/shard");
     }
+  }
+
+  public static void setTexture(TextureMap map) {
+    map.registerSprite(Util.getLocation("items/shard"));
   }
 }

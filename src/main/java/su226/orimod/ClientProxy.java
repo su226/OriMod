@@ -4,6 +4,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.client.event.ModelBakeEvent;
 import net.minecraftforge.client.event.ModelRegistryEvent;
+import net.minecraftforge.client.event.RenderGameOverlayEvent;
 import net.minecraftforge.client.event.RenderPlayerEvent;
 import net.minecraftforge.client.event.TextureStitchEvent;
 import net.minecraftforge.event.AttachCapabilitiesEvent;
@@ -13,6 +14,7 @@ import net.minecraftforge.fml.common.gameevent.TickEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent.ClientTickEvent;
 import net.minecraftforge.fml.relauncher.Side;
 import su226.orimod.capabilities.IChargeable;
+import su226.orimod.capabilities.ISpiritLight;
 import su226.orimod.entities.Entities;
 import su226.orimod.items.Items;
 import su226.orimod.others.Models;
@@ -69,6 +71,11 @@ public class ClientProxy extends CommonProxy {
 	public static void renderPlayerPre(RenderPlayerEvent.Pre event) {
     Items.KUROS_FEATHER.renderPlayerPre(event.getEntityPlayer(), event.getRenderer());
 	}
+
+  @SubscribeEvent
+  public static void renderGameOverlayPost(RenderGameOverlayEvent.Post event) {
+    ISpiritLight.renderGameOverlayPost(event);
+  }
 
   @SubscribeEvent
   public static void clientTick(ClientTickEvent event) {

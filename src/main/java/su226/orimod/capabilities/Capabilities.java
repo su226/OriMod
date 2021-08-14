@@ -14,6 +14,8 @@ public class Capabilities {
   public static Capability<IKurosFeather> KUROS_FEATHER;
   @CapabilityInject(IMultiJump.class)
   public static Capability<IMultiJump> MULTI_JUMP;
+  @CapabilityInject(ISpiritLight.class)
+  public static Capability<ISpiritLight> SPIRIT_LIGHT;
 
   public static void register() {
     IChargeable.register();
@@ -21,5 +23,6 @@ public class Capabilities {
     IHasEntity.register();
     IKurosFeather.register();
     IMultiJump.register();
+    ISpiritLight.register();
   }
 }

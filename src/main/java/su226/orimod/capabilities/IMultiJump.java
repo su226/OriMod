@@ -1,7 +1,5 @@
 package su226.orimod.capabilities;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.concurrent.Callable;
 
 import net.minecraft.nbt.NBTBase;
@@ -23,35 +21,7 @@ public interface IMultiJump {
   }
 
   static class Implementation implements IMultiJump {
-    List<Integer> counts = new ArrayList<>();
-    int maxCount;
     int countLeft;
-
-    @Override
-    public void addCount(int count) {
-      counts.add(count);
-      if (count > maxCount) {
-        maxCount = count;
-      }
-    }
-
-    @Override
-    public void removeCount(int count) {
-      counts.remove(new Integer(count));
-      if (count == maxCount) {
-        maxCount = 0;
-        for (int i : counts) {
-          if (i > maxCount) {
-            maxCount = i;
-          }
-        }
-      }
-    }
-
-    @Override
-    public int getMaxCount() {
-      return this.maxCount;
-    }
 
     @Override
     public boolean doJump() {
@@ -63,8 +33,8 @@ public interface IMultiJump {
     }
 
     @Override
-    public void resetJump() {
-      this.countLeft = this.maxCount;
+    public void resetJump(int maxCount) {
+      this.countLeft = maxCount;
     }
   }
 
@@ -94,11 +64,8 @@ public interface IMultiJump {
     }
   }
 
-  void addCount(int count);
-  void removeCount(int count);
-  int getMaxCount();
   boolean doJump();
-  void resetJump();
+  void resetJump(int maxCount);
 
   public static void register() {
     CapabilityManager.INSTANCE.register(IMultiJump.class, new Storage(), new Factory());

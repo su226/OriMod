@@ -12,10 +12,12 @@ public class Messages {
     DebugMessage.register();
     FlapMessage.register();
     LightBurstMessage.register();
-    MultiJumpMessage.register();
     MultiJumpEffectMessage.register();
+    MultiJumpMessage.register();
+    SoundMessage.register();
     SpiritArcMessage.register();
     SpiritFlameMessage.register();
-    SoundMessage.register();
+    SpiritLightSyncMessage.register();
+    WallJumpMessage.register();
   }
 }

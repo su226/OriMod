@@ -1,0 +1,12 @@
+{
+  "parent": "minecraft:block/cube",
+  "textures": {
+    "particle": "orimod:blocks/spirit_smithing_table_front",
+    "north": "orimod:blocks/spirit_smithing_table_front",
+    "south": "orimod:blocks/spirit_smithing_table_front",
+    "east": "orimod:blocks/spirit_smithing_table_side",
+    "west": "orimod:blocks/spirit_smithing_table_side",
+    "up": "orimod:blocks/spirit_smithing_table_top",
+    "down": "orimod:blocks/spirit_smithing_table_bottom"
+  }
+}

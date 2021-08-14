@@ -150,4 +150,34 @@ public class Config {
     @RangeDouble(min = 0)
     public double EXPLOSION_FORCE = 3;
   }
+
+  @LangKey("config.orimod.spirit_light")
+  public static SpiritLight SPIRIT_LIGHT = new SpiritLight();
+
+  public static class SpiritLight {
+    @LangKey("config.orimod.spirit_light.drop_multiplier")
+    @RangeDouble(min = 0)
+    public double DROP_MULITPLIER = 0.25;
+
+    @LangKey("config.orimod.spirit_light.death_penalty")
+    @RangeDouble(min = 0, max = 1)
+    public double DEATH_PENALTY = 0.5;
+
+    @LangKey("config.orimod.spirit_light.death_drop")
+    @RangeDouble(min = 0, max = 1)
+    public double DEATH_DROP = 0.5;
+  }
+
+  @LangKey("config.orimod.wall_jump")
+  public static WallJump WALL_JUMP = new WallJump();
+
+  public static class WallJump {
+    @LangKey("config.orimod.wall_jump.velocity_multiplier")
+    @RangeDouble(min = 0)
+    public double VELOCITY_MULTIPLIER = 0.75;
+
+    @LangKey("config.orimod.wall_jump.fall_multiplier")
+    @RangeDouble(min = 0)
+    public double FALL_MULTIPLIER = 0.75;
+  }
 }

@@ -66,11 +66,27 @@ config.orimod.light_burst.charge_duration=Charge Duration
 config.orimod.light_burst.charge_duration.tooltip=Charge duration for light burst, in ticks
 config.orimod.light_burst.explosion_force=Explosion Force
 config.orimod.light_burst.explosion_force.tooltip=Explosion force for light burst
+config.orimod.spirit_light=Spirit Light
+config.orimod.spirit_light.tooltip=Config for spirit light
+config.orimod.spirit_light.drop_multiplier=Drop Multiplier
+config.orimod.spirit_light.drop_multiplier.tooltip=Drop multiplier for spirit light, multiply by max health for drop count.
+config.orimod.spirit_light.death_penalty=Death Penalty
+config.orimod.spirit_light.death_penalty.tooltip=Keep ratio for spirit light when player dies.
+config.orimod.spirit_light.death_drop=Death Drop
+config.orimod.spirit_light.death_drop.tooltip=Drop ratio for the not keeping part of spirit light, others will be disappeared.
+config.orimod.wall_jump=Wall Jump
+config.orimod.wall_jump.tooltip=Config for wall jump
+config.orimod.wall_jump.velocity_multiplier=Velocity Multiplier
+config.orimod.wall_jump.velocity_multiplier.tooltip=Slow fall velocity multiplier when clinging to wall.
+config.orimod.wall_jump.fall_multiplier=Fall Multiplier
+config.orimod.wall_jump.fall_multiplier.tooltip=Fall distance multiplier when clinging to wall.
 
 maid_pack.orimod.name=OriMod
 maid_pack.orimod.desc=Models included in OriMod
 model.orimod.ori.name=Ori
 model.orimod.ori.desc=Ori from Ori and the Will of the Wisps
+
+tile.orimod.spirit_smithing_table.name=Spirit smithing table
 
 itemGroup.orimod=OriMod
 item.orimod.bash.name=Bash
@@ -82,6 +98,7 @@ item.orimod.spirit_edge.name=Spirit Edge
 item.orimod.spirit_flame.name=Spirit Flame
 item.orimod.shard_double_jump.name=Double Jump
 item.orimod.shard_triple_jump.name=Triple Jump
+item.orimod.shard_wall_jump.name=Wall Jump
 
 entity.orimod.arrow.name=Spirit Arc Arrow
 entity.orimod.light_burst.name=Light Burst
@@ -105,3 +122,15 @@ orimod.sound.light_burst_throw=Light Burst: Throw
 orimod.sound.light_burst_hit_entity=Light Burst: Hit Entity
 orimod.sound.light_burst_hit_ground=Light Burst: Hit Ground
 orimod.sound.multi_jump=Multi Jump
+
+gui.orimod.spirit_smithing_table=Spirit Light Smithing
+
+jei.orimod.recipe.spirit_smithing=Spirit Light Smithing
+
+commands.orimod.spiritlight.usage=See /spiritlight help
+commands.orimod.spiritlight.help_add=/spiritlight add <player> <count> - Add player's spirit light.
+commands.orimod.spiritlight.help_set=/spiritlight set <player> <count> - Set player's spirit light.
+commands.orimod.spiritlight.success_add=Added %2$d spirit light to %1$s.
+commands.orimod.spiritlight.success_set=Set %1$s's spirit light count to %2$d.
+commands.orimod.spiritlight.failed_invaild_number=Invaild number %d.
+commands.orimod.spiritlight.failed_invaild_command=Invaild number %s.

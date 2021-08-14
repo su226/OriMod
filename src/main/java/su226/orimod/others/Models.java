@@ -39,9 +39,10 @@ import net.minecraftforge.common.model.TRSRTransformation;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import su226.orimod.Mod;
+import su226.orimod.blocks.Blocks;
 import su226.orimod.entities.Arrow;
 import su226.orimod.items.Items;
-import su226.orimod.items.Shard;
+import su226.orimod.items.shards.Shard;
 import su226.orimod.particles.ChargeFlameParticle;
 import su226.orimod.particles.SpiritArcParticle;
 
@@ -255,15 +256,17 @@ public class Models {
   }
 
   public static void setModels() {
+    Blocks.SPIRIT_SMITHING_TABLE.setModel();
     Items.BASH.setModel();
-    Items.DOUBLE_JUMP.setModel();
-    Items.TRIPLE_JUMP.setModel();
     Items.ICON.setModel();
     Items.KUROS_FEATHER.setModel();
     Items.LIGHT_BURST.setModel();
     Items.SPIRIT_ARC.setModel();
     Items.SPIRIT_EDGE.setModel();
     Items.SPIRIT_FLAME.setModel();
+    Items.DOUBLE_JUMP.setModel();
+    Items.TRIPLE_JUMP.setModel();
+    Items.WALL_JUMP.setModel();
   }
 
   public static void loadModels() {
@@ -278,6 +281,7 @@ public class Models {
   }
 
   public static void setTexture(TextureMap map) {
+    Shard.setTexture(map);
     Items.KUROS_FEATHER.setTexture(map);
     ChargeFlameParticle.setTexture(map);
     SpiritArcParticle.setTexture(map);

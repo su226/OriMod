@@ -25,6 +25,7 @@ import net.minecraftforge.event.ForgeEventFactory;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import su226.orimod.Config;
+import su226.orimod.blocks.SpiritSmithingTable;
 import su226.orimod.capabilities.Capabilities;
 import su226.orimod.capabilities.IChargeable;
 import su226.orimod.entities.Arrow;
@@ -46,7 +47,8 @@ public class SpiritArc extends ItemBow {
       GlStateManager.disableLighting();
       GlStateManager.enableCull();
       OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, 240, 240);
-      double charge = stack.getCapability(Capabilities.CHARGEABLE, null).getCharge();
+      IChargeable cap = stack.getCapability(Capabilities.CHARGEABLE, null);
+      double charge = cap == null ? 0 : cap.getCharge();
       double x = 0.45 * (1 - charge);
       GlStateManager.pushMatrix();
       GlStateManager.scale(1 + 0.5 * charge, 1, 1);
@@ -87,9 +89,15 @@ public class SpiritArc extends ItemBow {
     this.addPropertyOverride(new ResourceLocation("charge"), new IItemPropertyGetter() {
       @Override
       public float apply(ItemStack stack, World world, EntityLivingBase owner) {
-        return stack.getCapability(Capabilities.CHARGEABLE, null).getCharge();
+        IChargeable cap = stack.getCapability(Capabilities.CHARGEABLE, null);
+        return cap == null ? 0 : cap.getCharge();
       }
     });
+    SpiritSmithingTable.registerRecipe(new SpiritSmithingTable.Recipe(
+      new ItemStack(net.minecraft.init.Items.BOW),
+      new ItemStack(this),
+      300
+    ));
   }
 
   @SideOnly(Side.CLIENT)

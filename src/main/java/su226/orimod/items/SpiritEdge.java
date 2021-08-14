@@ -12,6 +12,7 @@ import net.minecraftforge.common.util.EnumHelper;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import su226.orimod.Config;
+import su226.orimod.blocks.SpiritSmithingTable;
 import su226.orimod.others.Models;
 import su226.orimod.others.Util;
 
@@ -37,6 +38,11 @@ public class SpiritEdge extends ItemSword {
     this.setRegistryName(Util.getLocation("spirit_edge"));
     this.setUnlocalizedName(Util.getI18nKey("spirit_edge"));
     this.setCreativeTab(Items.CREATIVE_TAB);
+    SpiritSmithingTable.registerRecipe(new SpiritSmithingTable.Recipe(
+      new ItemStack(net.minecraft.init.Items.DIAMOND_SWORD),
+      new ItemStack(this),
+      300
+    ));
   }
 
   @SideOnly(Side.CLIENT)

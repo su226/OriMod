@@ -8,6 +8,7 @@ import java.util.List;
 import com.google.common.base.Predicate;
 
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.monster.EntityMob;
@@ -138,8 +139,19 @@ public class Util {
     return result;
   }
 
+  private static boolean prevPressed;
+  private static boolean prevFlying;
+  
+  @SideOnly(Side.CLIENT)
+  public static boolean canAirJump(EntityPlayerSP ent) {
+    boolean ret = isAirBorne(ent) && ent.movementInput.jump && !prevPressed && !ent.capabilities.isFlying && !prevFlying && !ent.isElytraFlying();
+    prevPressed = ent.movementInput.jump;
+    prevFlying = ent.capabilities.isFlying;
+    return ret;
+  }
+
   public static boolean isAirBorne(EntityLivingBase ent) {
-    return ent.isAirBorne && !ent.world.containsAnyLiquid(ent.getEntityBoundingBox()) && !ent.isOnLadder();
+    return !ent.onGround && !ent.world.containsAnyLiquid(ent.getEntityBoundingBox()) && !ent.isOnLadder();
   }
 
   // ========== 向量 ==========

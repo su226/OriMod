@@ -21,6 +21,7 @@ import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import su226.orimod.Config;
+import su226.orimod.blocks.SpiritSmithingTable;
 import su226.orimod.capabilities.Capabilities;
 import su226.orimod.messages.SoundMessage;
 import su226.orimod.others.Models;
@@ -49,6 +50,11 @@ public class Bash extends Item {
     this.setUnlocalizedName(Util.getI18nKey("bash"));
     this.setCreativeTab(Items.CREATIVE_TAB);
     this.setMaxStackSize(1);
+    SpiritSmithingTable.registerRecipe(new SpiritSmithingTable.Recipe(
+      new ItemStack(net.minecraft.init.Blocks.PISTON),
+      new ItemStack(this),
+      300
+    ));
   }
 
   @Override

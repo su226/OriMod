@@ -29,6 +29,7 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import su226.orimod.Config;
 import su226.orimod.Mod;
+import su226.orimod.blocks.SpiritSmithingTable;
 import su226.orimod.capabilities.Capabilities;
 import su226.orimod.capabilities.IKurosFeather;
 import su226.orimod.capabilities.IEquipper.IEquipable;
@@ -72,6 +73,11 @@ public class KurosFeather extends Item implements IEquipable {
     this.setUnlocalizedName(Util.getI18nKey("kuros_feather"));
     this.setCreativeTab(Items.CREATIVE_TAB);
     this.setMaxStackSize(1);
+    SpiritSmithingTable.registerRecipe(new SpiritSmithingTable.Recipe(
+      new ItemStack(net.minecraft.init.Items.FEATHER),
+      new ItemStack(this),
+      300
+    ));
   }
 
   public void setRotationAngles(ModelPlayer model, EntityPlayer owner) {
@@ -136,11 +142,11 @@ public class KurosFeather extends Item implements IEquipable {
   }
 
   @Override
-  public void onEquipableUpdate(EntityPlayer owner) {
+  public void onEquipableUpdate(EntityPlayer owner, boolean isMaxPriority) {
     boolean gliding = this.canGlide(owner);
     IKurosFeather cap = owner.getCapability(Capabilities.KUROS_FEATHER, null);
     if (cap.isPrevGliding() != gliding) {
-      if (owner.world.isRemote) {
+      if (!owner.world.isRemote) {
         SoundMessage.play(owner, gliding ? Sounds.GLIDE_START : Sounds.GLIDE_END);
       }
       cap.setPrevGliding(gliding);
@@ -155,7 +161,7 @@ public class KurosFeather extends Item implements IEquipable {
   }
 
   @Override
-  public void onEquipableUnequip(EntityPlayer owner) {
+  public void onEquipableUnequip(EntityPlayer owner, boolean isMaxPriority) {
     IKurosFeather cap = owner.getCapability(Capabilities.KUROS_FEATHER, null);
     cap.setShouldUpdate(true);
     cap.setPrevGliding(false);

@@ -1,8 +1,10 @@
 package su226.orimod.capabilities;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Callable;
@@ -50,20 +52,22 @@ public interface IEquipper {
         Multiset<IEquipable> equipables = cap.getEquipables();
         equipables.add(this);
         if (equipables.count(this) == 1) {
-          this.onEquipableEquip(player);
+          this.onEquipableEquip(player, addPriority(cap, this));
         }
       }
       equippeds.put(stack, player.ticksExisted);
       Set<IEquipable> updated = cap.getUpdated();
       if (!updated.contains(this)) {
         updated.add(this);
-        this.onEquipableUpdate(player);
+        this.onEquipableUpdate(player, checkPriority(cap, this));
       }
     }
 
-    default void onEquipableEquip(EntityPlayer owner) {}
-    default void onEquipableUpdate(EntityPlayer owner) {}
-    default void onEquipableUnequip(EntityPlayer owner) {}
+    default void onEquipableEquip(EntityPlayer owner, boolean isMaxPriority) {}
+    default void onEquipableUpdate(EntityPlayer owner, boolean isMaxPriority) {}
+    default void onEquipableUnequip(EntityPlayer owner, boolean isMaxPriority) {}
+    default String getEquipableType() { return null; }
+    default int getEquipablePriority() { return 0; }
 
     BiPredicate<ItemStack, EntityPlayer> getEquipableSlots();
 
@@ -74,28 +78,31 @@ public interface IEquipper {
 
     @Override
     default void onEquipped(ItemStack stack, EntityLivingBase owner) {
-      Multiset<IEquipable> equipables = owner.getCapability(Capabilities.EQUIPPER, null).getEquipables();
+      IEquipper cap = owner.getCapability(Capabilities.EQUIPPER, null);
+      Multiset<IEquipable> equipables = cap.getEquipables();
       equipables.add(this);
       if (equipables.count(this) == 1) {
-        onEquipableEquip((EntityPlayer)owner);
+          onEquipableEquip((EntityPlayer)owner, addPriority(cap, this));
       }
     }
 
     @Override
     default void onWornTick(ItemStack stack, EntityLivingBase owner) {
-      Set<IEquipable> updated = owner.getCapability(Capabilities.EQUIPPER, null).getUpdated();
+      IEquipper cap = owner.getCapability(Capabilities.EQUIPPER, null);
+      Set<IEquipable> updated = cap.getUpdated();
       if (!updated.contains(this)) {
         updated.add(this);
-        this.onEquipableUpdate((EntityPlayer)owner);
+        this.onEquipableUpdate((EntityPlayer)owner, checkPriority(cap, this));
       }
     }
 
     @Override
     default void onUnequipped(ItemStack stack, EntityLivingBase owner) {
-      Multiset<IEquipable> equipables = owner.getCapability(Capabilities.EQUIPPER, null).getEquipables();
+      IEquipper cap = owner.getCapability(Capabilities.EQUIPPER, null);
+      Multiset<IEquipable> equipables = cap.getEquipables();
       equipables.remove(this);
       if (!equipables.contains(this)) {
-        onEquipableUnequip((EntityPlayer)owner);
+        onEquipableUnequip((EntityPlayer)owner, removePriority(cap, this));
       }
     }
   }
@@ -110,9 +117,43 @@ public interface IEquipper {
     public void readNBT(Capability<IEquipper> capability, IEquipper instance, EnumFacing side, NBTBase nbt) {}
   }
 
+  static class Priorities {
+    private List<Integer> values = new ArrayList<>();
+    private int max;
+    
+    public boolean check(IEquipable equipable) {
+      return equipable.getEquipablePriority() == this.max;
+    }
+
+    public boolean add(IEquipable equipable) {
+      int value = equipable.getEquipablePriority();
+      this.max = Math.max(value, this.max);
+      values.add(value);
+      return value == this.max;
+    }
+
+    public boolean remove(IEquipable equipable) {
+      int value = equipable.getEquipablePriority();
+      values.remove(new Integer(value));
+      if (value == this.max) {
+        this.max = 0;
+        for (int i : values) {
+          this.max = Math.max(this.max, i);
+        }
+        return true;
+      }
+      return false;
+    }
+
+    public boolean isEmpty() {
+      return values.isEmpty();
+    }
+  }
+
   static class Implementation implements IEquipper {
     Map<ItemStack, Integer> equippeds = new HashMap<>();
     Multiset<IEquipable> equipables = HashMultiset.create();
+    Map<String, Priorities> priorities = new HashMap<>();
     Set<IEquipable> updated = new HashSet<>();
 
     @Override
@@ -133,6 +174,11 @@ public interface IEquipper {
     @Override
     public boolean isEquipped(IEquipable equipable) {
       return equipables.contains(equipable);
+    }
+
+    @Override
+    public Map<String, Priorities> getPrioritiesMap() {
+      return priorities;
     }
   }
 
@@ -165,7 +211,46 @@ public interface IEquipper {
   Map<ItemStack, Integer> getEquippeds();
   Multiset<IEquipable> getEquipables();
   Set<IEquipable> getUpdated();
+  Map<String, Priorities> getPrioritiesMap();
   boolean isEquipped(IEquipable equipable);
+
+  public static boolean addPriority(IEquipper cap, IEquipable equipable) {
+    String type = equipable.getEquipableType();
+    if (type == null) {
+      return true;
+    }
+    Map<String, Priorities> prioritiesMap = cap.getPrioritiesMap();
+    Priorities priorities;
+    if (prioritiesMap.containsKey(type)) {
+      priorities = prioritiesMap.get(type);
+    } else {
+      priorities = new Priorities();
+      prioritiesMap.put(type, priorities);
+    }
+    return priorities.add(equipable);
+  }
+
+  public static boolean checkPriority(IEquipper cap, IEquipable equipable) {
+    String type = equipable.getEquipableType();
+    if (type == null) {
+      return true;
+    }
+    return cap.getPrioritiesMap().get(type).check(equipable);
+  }
+
+  public static boolean removePriority(IEquipper cap, IEquipable equipable) {
+    String type = equipable.getEquipableType();
+    if (type == null) {
+      return true;
+    }
+    Map<String, Priorities> prioritiesMap = cap.getPrioritiesMap();
+    Priorities priorities = prioritiesMap.get(type);
+    boolean ret = priorities.remove(equipable);
+    if (priorities.isEmpty()) {
+      prioritiesMap.remove(type);
+    }
+    return ret;
+  }
   
   public static void playerTick(EntityPlayer player) {
     IEquipper cap = player.getCapability(Capabilities.EQUIPPER, null);
@@ -180,7 +265,7 @@ public interface IEquipper {
         equipables.remove(equipable);
         it.remove();
         if (!equipables.contains(equipable)) {
-          equipable.onEquipableUnequip(player);
+          equipable.onEquipableUnequip(player, removePriority(cap, equipable));
         }
       }
     }

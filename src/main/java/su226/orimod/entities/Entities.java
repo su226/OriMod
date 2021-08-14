@@ -13,10 +13,12 @@ public class Entities {
   public static void register(IForgeRegistry<EntityEntry> registry) {
     Arrow.register(registry);
     LightBurstEntity.register(registry);
+    SpiritLightOrb.register(registry);
   }
 
   public static void registerRender() {
     Arrow.registerRender();
     LightBurstEntity.registerRender();
+    SpiritLightOrb.registerRender();
   }
 }

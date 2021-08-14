@@ -66,11 +66,27 @@ config.orimod.light_burst.charge_duration=蓄力时间
 config.orimod.light_burst.charge_duration.tooltip=灵光迸射蓄力的时间，以刻为单位
 config.orimod.light_burst.explosion_force=爆炸力度
 config.orimod.light_burst.explosion_force.tooltip=灵光迸射的爆炸力度
+config.orimod.spirit_light=精灵之光
+config.orimod.spirit_light.tooltip=精灵之光相关设置
+config.orimod.spirit_light.drop_multiplier=掉落倍数
+config.orimod.spirit_light.drop_multiplier.tooltip=精灵之光的掉落倍数，乘以最大生命值得到掉落量。
+config.orimod.spirit_light.death_penalty=死亡惩罚
+config.orimod.spirit_light.death_penalty.tooltip=玩家死亡时精灵之光保留的倍数。
+config.orimod.spirit_light.death_drop=死亡掉落
+config.orimod.spirit_light.death_drop.tooltip=玩家死亡时精灵之光不保留的部分掉落的倍数，剩余的将会消失。
+config.orimod.wall_jump=飞檐走壁
+config.orimod.wall_jump.tooltip=飞檐走壁相关设置
+config.orimod.wall_jump.velocity_multiplier=速度倍数
+config.orimod.wall_jump.velocity_multiplier.tooltip=当贴墙时缓降速度的倍数
+config.orimod.wall_jump.fall_multiplier=摔落倍数
+config.orimod.wall_jump.fall_multiplier.tooltip=当贴墙时摔落高度的倍数
 
 maid_pack.orimod.name=OriMod
 maid_pack.orimod.desc=OriMod 附带的模型
 model.orimod.ori.name=Ori
 model.orimod.ori.desc=《精灵与萤火意志》里的奥里
+
+tile.orimod.spirit_smithing_table.name=精灵锻造台
 
 itemGroup.orimod=OriMod
 item.orimod.bash.name=猛击
@@ -82,6 +98,7 @@ item.orimod.spirit_edge.name=精灵之刃
 item.orimod.spirit_flame.name=精灵之火
 item.orimod.shard_double_jump.name=二段跳
 item.orimod.shard_triple_jump.name=三段跳
+item.orimod.shard_wall_jump.name=飞檐走壁
 
 entity.orimod.arrow.name=精灵弧击箭矢
 entity.orimod.light_burst.name=灵光迸射
@@ -105,3 +122,13 @@ orimod.sound.light_burst_throw=灵光迸射:抛出
 orimod.sound.light_burst_hit_entity=灵光迸射:击中生物
 orimod.sound.light_burst_hit_ground=灵光迸射:击中地面
 orimod.sound.multi_jump=多段跳
+
+gui.orimod.spirit_smithing_table=灵光锻造
+
+jei.orimod.recipe.spirit_smithing=灵光锻造
+
+commands.orimod.spiritlight.usage=参见/spiritlight help
+commands.orimod.spiritlight.help_add=/spiritlight add <玩家> <数量> - 增加玩家的精灵之光
+commands.orimod.spiritlight.help_set=/spiritlight set <玩家> <数量> - 设置玩家的精灵之光
+commands.orimod.spiritlight.success_add=为%1$s增加了%2$d点精灵之光。
+commands.orimod.spiritlight.success_set=将%1$s的精灵之光设置为%2$d。

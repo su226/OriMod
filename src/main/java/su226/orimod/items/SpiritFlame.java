@@ -24,6 +24,7 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import su226.orimod.Config;
 import su226.orimod.Mod;
+import su226.orimod.blocks.SpiritSmithingTable;
 import su226.orimod.capabilities.Capabilities;
 import su226.orimod.capabilities.IChargeable;
 import su226.orimod.messages.SpiritFlameMessage;
@@ -56,7 +57,8 @@ public class SpiritFlame extends Item {
       GlStateManager.disableLighting();
       OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, 240, 240);
       Models.renderItemModel(MODEL);
-      double scale = 1.1 + 0.4 * stack.getCapability(Capabilities.CHARGEABLE, null).getCharge();
+      IChargeable cap = stack.getCapability(Capabilities.CHARGEABLE, null);
+      double scale = 1.1 + 0.4 * (cap == null ? 0 : cap.getCharge());
       double translate = (1 - scale) / 2;
       GlStateManager.translate(translate, translate, translate);
       GlStateManager.scale(scale, scale, scale);
@@ -78,22 +80,29 @@ public class SpiritFlame extends Item {
     this.setUnlocalizedName(Util.getI18nKey("spirit_flame"));
     this.setCreativeTab(Items.CREATIVE_TAB);
     this.setMaxStackSize(1);
+    SpiritSmithingTable.registerRecipe(new SpiritSmithingTable.Recipe(
+      new ItemStack(net.minecraft.init.Items.BLAZE_POWDER),
+      new ItemStack(this),
+      300
+    ));
   }
 
   @Override
   public boolean showDurabilityBar(ItemStack stack) {
-    return stack.getCapability(Capabilities.CHARGEABLE, null).getCharge() != 0;
+    IChargeable cap = stack.getCapability(Capabilities.CHARGEABLE, null);
+    return cap == null ? false : cap.getCharge() != 0;
   }
 
   @Override
   public double getDurabilityForDisplay(ItemStack stack) {
-    return 1 - stack.getCapability(Capabilities.CHARGEABLE, null).getCharge();
+    IChargeable cap = stack.getCapability(Capabilities.CHARGEABLE, null);
+    return cap == null ? 1 : 1 - cap.getCharge();
   }
   
   @Override
   public int getRGBDurabilityForDisplay(ItemStack stack) {
     IChargeable cap = stack.getCapability(Capabilities.CHARGEABLE, null);
-    if (cap.getCharge() == 1 && cap.blink()) {
+    if (cap != null && cap.getCharge() == 1 && cap.blink()) {
       return 0xffffff;
     }
     return super.getRGBDurabilityForDisplay(stack);

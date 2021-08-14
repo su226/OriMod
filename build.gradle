@@ -1,13 +1,13 @@
 buildscript {
-    repositories {
-        jcenter()
-        maven { url = "https://files.minecraftforge.net/maven" }
-        maven { url = "https://repo.spongepowered.org/maven" } // MixinGradle
-    }
-    dependencies {
-        classpath 'net.minecraftforge.gradle:ForgeGradle:2.3-SNAPSHOT'
-        classpath 'org.spongepowered:mixingradle:0.6-SNAPSHOT'
-    }
+  repositories {
+    jcenter()
+    maven { url = "https://files.minecraftforge.net/maven" }
+    maven { url = "https://repo.spongepowered.org/maven" } // MixinGradle
+  }
+  dependencies {
+    classpath 'net.minecraftforge.gradle:ForgeGradle:2.3-SNAPSHOT'
+    classpath 'org.spongepowered:mixingradle:0.6-SNAPSHOT'
+  }
 }
 apply plugin: 'net.minecraftforge.gradle.forge'
 apply plugin: 'org.spongepowered.mixin'
@@ -19,61 +19,64 @@ archivesBaseName = "orimod"
 sourceCompatibility = targetCompatibility = compileJava.sourceCompatibility = compileJava.targetCompatibility = '1.8'
 
 minecraft {
-    version = "1.12.2-14.23.5.2847"
-    runDir = "run"
-    mappings = "snapshot_20171003"
-    String myJvmArgs = "-Dfml.coreMods.load=su226.orimod.CoreMod"
-    String myRunArgs = "--mixin mixins.orimod.json"
-    clientJvmArgs += myJvmArgs
-    serverJvmArgs += myJvmArgs
-    clientRunArgs += myRunArgs
-    serverRunArgs += myRunArgs
+  version = "1.12.2-14.23.5.2847"
+  runDir = "run"
+  mappings = "snapshot_20171003"
+  String myJvmArgs = "-Dfml.coreMods.load=su226.orimod.CoreMod"
+  String myRunArgs = "--mixin mixins.orimod.json"
+  clientJvmArgs += myJvmArgs
+  serverJvmArgs += myJvmArgs
+  clientRunArgs += myRunArgs
+  serverRunArgs += myRunArgs
 }
 
 repositories {
-    maven { url = "https://maven.thiakil.com" } // Baubles
-    maven { url = 'https://repo.spongepowered.org/maven' } // Mixin
+  maven { url = "https://maven.thiakil.com" } // Baubles
+  maven { url = 'https://repo.spongepowered.org/maven' } // Mixin
+  maven { url = "https://dvs1.progwml6.com/files/maven/" } // JEI
 }
 
 dependencies {
-    deobfCompile "com.azanor.baubles:Baubles:1.12-1.5.2"
-    compile "org.spongepowered:mixin:0.8.3-SNAPSHOT"
+  deobfCompile "com.azanor.baubles:Baubles:1.12-1.5.2"
+  compile "org.spongepowered:mixin:0.8.3-SNAPSHOT"
+  deobfProvided "mezz.jei:jei_1.12.2:4.16.1.302:api"
+  runtime "mezz.jei:jei_1.12.2:4.16.1.302"
 }
 
 jar {
-    from {configurations.compile
-        .filter { "mixin-0.8.3-SNAPSHOT.jar" == it.name }
-        .collect { it.isDirectory() ? it : zipTree(it) }
-    } {
-        exclude "LICENSE.txt", "META-INF/MANIFSET.MF", "META-INF/maven/**", "META-INF/*.RSA", "META-INF/*.SF"
-    }
+  from {configurations.compile
+    .filter { "mixin-0.8.3-SNAPSHOT.jar" == it.name }
+    .collect { it.isDirectory() ? it : zipTree(it) }
+  } {
+    exclude "LICENSE.txt", "META-INF/MANIFSET.MF", "META-INF/maven/**", "META-INF/*.RSA", "META-INF/*.SF"
+  }
 
-    manifest {
-        attributes "FMLCorePlugin": "su226.orimod.CoreMod"
-        attributes "FMLCorePluginContainsFMLMod": "true"
-        attributes "ForceLoadAsMod": "true"
-        attributes "TweakClass": "org.spongepowered.asm.launch.MixinTweaker"
-        attributes "TweakOrder": "0"
-        attributes "MixinConfigs": "mixins.orimod.json"
-    }
+  manifest {
+    attributes "FMLCorePlugin": "su226.orimod.CoreMod"
+    attributes "FMLCorePluginContainsFMLMod": "true"
+    attributes "ForceLoadAsMod": "true"
+    attributes "TweakClass": "org.spongepowered.asm.launch.MixinTweaker"
+    attributes "TweakOrder": "0"
+    attributes "MixinConfigs": "mixins.orimod.json"
+  }
 }
 
 processResources {
-    inputs.property "version", project.version
-    inputs.property "mcversion", project.minecraft.version
+  inputs.property "version", project.version
+  inputs.property "mcversion", project.minecraft.version
 
-    from(sourceSets.main.resources.srcDirs) {
-        include 'mcmod.info'
-        expand 'version':project.version, 'mcversion':project.minecraft.version
-    }
+  from(sourceSets.main.resources.srcDirs) {
+    include 'mcmod.info'
+    expand 'version':project.version, 'mcversion':project.minecraft.version
+  }
 
-    from(sourceSets.main.resources.srcDirs) {
-        exclude 'mcmod.info'
-    }
+  from(sourceSets.main.resources.srcDirs) {
+    exclude 'mcmod.info'
+  }
 }
 
 // For some dirty VSCode debug hacks
 task writeClasspath << {
-    buildDir.mkdirs()
-    new File(buildDir, "classpath.txt").text = sourceSets.main.runtimeClasspath.collect { it.absolutePath }.join(':')
+  buildDir.mkdirs()
+  new File(buildDir, "classpath.txt").text = sourceSets.main.runtimeClasspath.collect { it.absolutePath }.join(':')
 }
