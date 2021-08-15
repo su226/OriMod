@@ -190,8 +190,8 @@ public interface ISpiritLight {
     int x = resolution.getScaledWidth() - 40;
     int y = 8;
     GlStateManager.color(1, 1, 1, alpha);
-    GlStateManager.shadeModel(GL11.GL_SMOOTH);
     GlStateManager.enableBlend();
+    GlStateManager.alphaFunc(GL11.GL_EQUAL, 1);
     GlStateManager.pushMatrix();
     GlStateManager.translate(x + 16, y + 16, 0);
     GlStateManager.rotate((ClientProxy.tick + event.getPartialTicks()) * 3, 0, 0, 1);
@@ -205,7 +205,6 @@ public interface ISpiritLight {
     GlStateManager.scale(2, 2, 1);
     mc.fontRenderer.drawStringWithShadow(str, 0, 0, 0xffff55);
     GlStateManager.popMatrix();
-    GlStateManager.shadeModel(GL11.GL_FLAT);
   }
 
   static void playerClone(PlayerEvent.Clone event) {
