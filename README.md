@@ -6,7 +6,7 @@ For Minecraft 1.12.2 only and Forge 2847 or up.
 
 ## Downloads
 
-Currently no pre-built JARs are available. You need to compile it by yourself:
+You can download from [GitHub releases](https://github.com/su226/OriMod/releases) or [CurseForge](https://www.curseforge.com/minecraft/mc-mods/orimod). You can also compile it by yourself:
 
 Set up JDK 8 environment and run `./gradlew build` , make sure to connect to a decent network or downloading will be failed.
 
