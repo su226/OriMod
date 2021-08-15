@@ -267,6 +267,7 @@ public class Models {
     Items.DOUBLE_JUMP.setModel();
     Items.TRIPLE_JUMP.setModel();
     Items.WALL_JUMP.setModel();
+    Items.CLIMB.setModel();
   }
 
   public static void loadModels() {

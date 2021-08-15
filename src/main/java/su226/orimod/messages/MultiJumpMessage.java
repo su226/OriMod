@@ -6,6 +6,7 @@ import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 import net.minecraftforge.fml.relauncher.Side;
+import su226.orimod.Config;
 import su226.orimod.Mod;
 import su226.orimod.capabilities.Capabilities;
 
@@ -17,6 +18,7 @@ public class MultiJumpMessage implements IMessage {
       player.getServerWorld().addScheduledTask(() -> {
         if (player.getCapability(Capabilities.MULTI_JUMP, null).doJump()) {
           player.jump();
+          player.motionY *= Config.JUMP_AND_CLIMB.MULTI_JUMP_MULTIPLIER;
           player.fallDistance = 0;
           player.velocityChanged = true;
           Mod.NETWORK.sendToDimension(new MultiJumpEffectMessage(player), player.dimension);

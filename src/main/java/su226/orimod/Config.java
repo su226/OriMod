@@ -168,16 +168,32 @@ public class Config {
     public double DEATH_DROP = 0.5;
   }
 
-  @LangKey("config.orimod.wall_jump")
-  public static WallJump WALL_JUMP = new WallJump();
+  @LangKey("config.orimod.jump_and_climb")
+  public static WallJump JUMP_AND_CLIMB = new WallJump();
 
   public static class WallJump {
-    @LangKey("config.orimod.wall_jump.velocity_multiplier")
-    @RangeDouble(min = 0)
-    public double VELOCITY_MULTIPLIER = 0.75;
+    @LangKey("config.orimod.jump_and_climb.wall_velocity_fraction")
+    @RangeDouble(min = 0, max = 1)
+    public double WALL_VELOCITY_FRACTION = 0.75;
 
-    @LangKey("config.orimod.wall_jump.fall_multiplier")
+    @LangKey("config.orimod.jump_and_climb.wall_fall_fraction")
+    @RangeDouble(min = 0, max = 1)
+    public double WALL_FALL_FRACTION = 0.75;
+
+    @LangKey("config.orimod.jump_and_climb.wall_thresold")
+    @RangeDouble(min = 0, max = 1)
+    public double WALL_THRESOLD = 0.01;
+
+    @LangKey("config.orimod.jump_and_climb.wall_jump_multiplier")
     @RangeDouble(min = 0)
-    public double FALL_MULTIPLIER = 0.75;
+    public double WALL_JUMP_MULTIPLIER = 1;
+
+    @LangKey("config.orimod.jump_and_climb.multi_jump_multiplier")
+    @RangeDouble(min = 0)
+    public double MULTI_JUMP_MULTIPLIER = 1;
+
+    @LangKey("config.orimod.jump_and_climb.climb_muliplier")
+    @RangeDouble(min = 0)
+    public double CLIMB_MULTIPLIER = 1;
   }
 }
