@@ -29,6 +29,10 @@ public class Sounds {
   public static final SoundEvent LIGHT_BURST_HIT_ENTITY = create("light_burst_hit_entity");
   public static final SoundEvent LIGHT_BURST_HIT_GROUND = create("light_burst_hit_ground");
   public static final SoundEvent MULTI_JUMP = create("multi_jump");
+  public static final SoundEvent WALL_JUMP = create("wall_jump");
+  public static final SoundEvent STOMP_START = create("stomp_start");
+  public static final SoundEvent STOMP_FALL = create("stomp_fall");
+  public static final SoundEvent STOMP_HIT = create("stomp_hit");
 
   private static SoundEvent create(String name) {
     ResourceLocation loc = Util.getLocation(name);

@@ -220,7 +220,7 @@ public class Arrow extends EntityArrow {
       }
 
       if (!this.world.isRemote) {
-        Mod.NETWORK.sendToDimension(new SpiritArcMessage(this.shootingEntity, entity, entity.getEntityBoundingBox().calculateIntercept(start, end).hitVec, start), this.dimension);
+        Mod.NETWORK.sendToAllAround(new SpiritArcMessage(this.shootingEntity, entity, entity.getEntityBoundingBox().calculateIntercept(start, end).hitVec, start), Util.getTargetPoint(this, 32));
       }
       this.prevPosY = -1000;
       this.posY = -1000;
@@ -241,7 +241,7 @@ public class Arrow extends EntityArrow {
       state.getBlock().onEntityCollidedWithBlock(this.world, pos, state, this);
     }
     if (!this.world.isRemote) {
-      Mod.NETWORK.sendToDimension(new SpiritArcMessage(this.shootingEntity, null, result.hitVec, start), this.dimension);
+      Mod.NETWORK.sendToAllAround(new SpiritArcMessage(this.shootingEntity, null, result.hitVec, start), Util.getTargetPoint(this, 32));
     }
     this.prevPosY = -1000;
     this.posY = -1000;

@@ -25,14 +25,15 @@ public class FlapMessage implements IMessage {
     public IMessage onMessage(FlapMessage message, MessageContext ctx) {
       Minecraft mc = Minecraft.getMinecraft();
       mc.addScheduledTask(() -> {
-        Vec3d delta = message.end.subtract(message.start).normalize();
+        Vec3d start = mc.world.getEntityByID(message.owner).getPositionEyes(1);
+        Vec3d delta = message.end.subtract(start).normalize();
         Vec3d base = Util.perpendicular(delta);
         for (int i = 0; i < EXTEND_FINENESS; i++) {
           Vec3d velocity = delta.scale(Config.KUROS_FEATHER.FORCE * i / EXTEND_FINENESS);
           for (int j = 0; j < ROTATE_FINENESS; j++) {
             Vec3d rotate = Util.rotate(delta, base, Math.PI * 2 * j / ROTATE_FINENESS).normalize();
             for (int k = 1; k <= RADIAL_FINENESS; k++) {
-              Vec3d point = rotate.scale(Config.KUROS_FEATHER.RANGE * k / RADIAL_FINENESS).add(message.start);
+              Vec3d point = rotate.scale(Config.KUROS_FEATHER.RANGE * k / RADIAL_FINENESS).add(start);
               // mc.effectRenderer.addEffct(new DebugParticle(mc.world, point, point.add(velocity), 0xff0000));;
               mc.world.spawnParticle(EnumParticleTypes.CLOUD, point.x, point.y, point.z, velocity.x, velocity.y, velocity.z);
             }
@@ -43,32 +44,25 @@ public class FlapMessage implements IMessage {
     }
   }
 
-  private Entity owner;
-  private Vec3d start;
+  private int owner;
   private Vec3d end;
 
   public FlapMessage() {}
   
-  public FlapMessage(Entity owner, Vec3d start, Vec3d end) {
-    this.owner = owner;
-    this.start = start;
+  public FlapMessage(Entity owner, Vec3d end) {
+    this.owner = owner.getEntityId();
     this.end = end;
   }
 
   @Override
-  @SideOnly(Side.CLIENT)
   public void fromBytes(ByteBuf buf) {
-    this.owner = Minecraft.getMinecraft().world.getEntityByID(buf.readInt());
-    this.start = new Vec3d(buf.readDouble(), buf.readDouble(), buf.readDouble());
+    this.owner = buf.readInt();
     this.end = new Vec3d(buf.readDouble(), buf.readDouble(), buf.readDouble());
   }
 
   @Override
   public void toBytes(ByteBuf buf) {
-    buf.writeInt(this.owner.getEntityId());
-    buf.writeDouble(this.start.x);
-    buf.writeDouble(this.start.y);
-    buf.writeDouble(this.start.z);
+    buf.writeInt(this.owner);
     buf.writeDouble(this.end.x);
     buf.writeDouble(this.end.y);
     buf.writeDouble(this.end.z);

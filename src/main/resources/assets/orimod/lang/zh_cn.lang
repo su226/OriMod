@@ -88,6 +88,12 @@ config.orimod.jump_and_climb.multi_jump_multiplier=多段跳倍数
 config.orimod.jump_and_climb.multi_jump_multiplier.tooltip=多段跳的速度倍数
 config.orimod.jump_and_climb.climb_muliplier=攀爬倍数
 config.orimod.jump_and_climb.climb_muliplier.tooltip=攀爬的速度倍数
+config.orimod.stomp=践踏攻击
+config.orimod.stomp.tooltip=践踏攻击相关设置
+config.orimod.stomp.force=威力
+config.orimod.stomp.force.tooltip=践踏攻击的威力
+config.orimod.stomp.charge_time=充能时间
+config.orimod.stomp.charge_time.tooltip=践踏攻击的充能时间
 
 maid_pack.orimod.name=OriMod
 maid_pack.orimod.desc=OriMod 附带的模型
@@ -108,6 +114,7 @@ item.orimod.shard_double_jump.name=二段跳
 item.orimod.shard_triple_jump.name=三段跳
 item.orimod.shard_wall_jump.name=飞檐走壁
 item.orimod.shard_climb.name=攀爬
+item.orimod.shard_stomp.name=践踏
 
 entity.orimod.arrow.name=精灵弧击箭矢
 entity.orimod.light_burst.name=灵光迸射
@@ -131,6 +138,10 @@ orimod.sound.light_burst_throw=灵光迸射:抛出
 orimod.sound.light_burst_hit_entity=灵光迸射:击中生物
 orimod.sound.light_burst_hit_ground=灵光迸射:击中地面
 orimod.sound.multi_jump=多段跳
+orimod.sound.wall_jump=蹬墙跳
+orimod.sound.stomp_start=践踏攻击:蓄力
+orimod.sound.stomp_fall=践踏攻击:下砸
+orimod.sound.stomp_hit=践踏攻击:砸地
 
 gui.orimod.spirit_smithing_table=灵光锻造
 

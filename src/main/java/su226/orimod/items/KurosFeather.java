@@ -23,6 +23,7 @@ import net.minecraft.util.EnumActionResult;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
+import net.minecraftforge.client.event.RenderPlayerEvent;
 import net.minecraftforge.event.entity.living.LivingAttackEvent;
 import net.minecraftforge.fml.common.ObfuscationReflectionHelper;
 import net.minecraftforge.fml.relauncher.Side;
@@ -31,6 +32,7 @@ import su226.orimod.Config;
 import su226.orimod.Mod;
 import su226.orimod.blocks.SpiritSmithingTable;
 import su226.orimod.capabilities.Capabilities;
+import su226.orimod.capabilities.IEquipper;
 import su226.orimod.capabilities.IKurosFeather;
 import su226.orimod.capabilities.IEquipper.IEquipable;
 import su226.orimod.messages.FlapMessage;
@@ -101,8 +103,8 @@ public class KurosFeather extends Item implements IEquipable {
   }
 
   public void livingAttack(LivingAttackEvent event) {
-    EntityLivingBase entity = event.getEntityLiving();
-    if (entity instanceof EntityPlayer && entity.getCapability(Capabilities.EQUIPPER, null).isEquipped(this) && event.getSource().damageType.equals("fall")) {
+    IEquipper cap = event.getEntity().getCapability(Capabilities.EQUIPPER, null);
+    if (cap != null && cap.isEquipped(this) && event.getSource().damageType.equals("fall")) {
       event.setCanceled(true);
     } 
   }
@@ -113,7 +115,9 @@ public class KurosFeather extends Item implements IEquipable {
   }
 
   @SuppressWarnings("unchecked")
-  public void renderPlayerPre(EntityPlayer owner, RenderPlayer render) {
+  public void renderPlayerPre(RenderPlayerEvent.Pre event) {
+    EntityPlayer owner = event.getEntityPlayer();
+    RenderPlayer render = event.getRenderer();
     IKurosFeather cap = owner.getCapability(Capabilities.KUROS_FEATHER, null);
     if (cap.shouldUpdate()) {
       boolean gliding = cap.isPrevGliding();
@@ -189,7 +193,7 @@ public class KurosFeather extends Item implements IEquipable {
         ent.addVelocity(velocity.x * ratio, velocity.y * ratio, velocity.z * ratio);
         ent.velocityChanged = true;
       }
-      Mod.NETWORK.sendToDimension(new FlapMessage(owner, start, end), owner.dimension);
+      Mod.NETWORK.sendToAllAround(new FlapMessage(owner, end), Util.getTargetPoint(owner, 32));
     }
     return new ActionResult<>(EnumActionResult.SUCCESS, owner.getHeldItem(hand));
   }

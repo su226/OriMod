@@ -73,8 +73,10 @@ public class Bash extends Item {
     if (!world.isRemote) {
       Entity ent = Util.rayTraceEntity(owner, Config.BASH.RANGE);
       if (ent != null) {
-        beginBash(owner);
-        beginBash(ent);
+        owner.setNoGravity(true);
+        ent.setNoGravity(true);
+        setVelocity(owner, 0, 0, 0);
+        setVelocity(ent, 0, 0, 0);
         stack.getCapability(Capabilities.HAS_ENTITY, null).setEntity(ent);
         if (ent instanceof EntityLiving) {
           ((EntityLiving)ent).setNoAI(true);
@@ -114,27 +116,21 @@ public class Bash extends Item {
         ((EntityLiving)ent).setNoAI(false);
       }
       Vec3d vec = owner.getLookVec().scale(Config.BASH.MULTIPLIER);
-      this.endBash(owner, vec.x, vec.y, vec.z);
-      this.endBash(ent, -vec.x, -vec.y, -vec.z);
+      owner.setNoGravity(false);
+      ent.setNoGravity(false);
+      setVelocity(owner, vec.x, vec.y, vec.z);
+      setVelocity(ent, -vec.x, -vec.y, -vec.z);
       SoundMessage.play(owner, Sounds.BASH_END);
     }
   }
 
-  private void beginBash(Entity ent) {
-    ent.setNoGravity(true);
-    setVelocity(ent, 0, 0, 0);
-  }
-
-  private void endBash(Entity ent, double x, double y, double z) {
-    ent.setNoGravity(false);
-    setVelocity(ent, x, y, z);
-  }
-
   private void setVelocity(Entity ent, double x, double y, double z) {
-    ent.motionX = x;
-    ent.motionY = y;
-    ent.motionZ = z;
-    ent.velocityChanged = true;
+    if (ent.motionX != x || ent.motionY != y || ent.motionZ != z) {
+      ent.motionX = x;
+      ent.motionY = y;
+      ent.motionZ = z;
+      ent.velocityChanged = true;
+    }
   }
 
   @SideOnly(Side.CLIENT)

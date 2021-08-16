@@ -21,39 +21,34 @@ public class ChargeFlameMessage implements IMessage {
     public IMessage onMessage(ChargeFlameMessage message, MessageContext ctx) {
       Minecraft mc = Minecraft.getMinecraft();
       mc.addScheduledTask(() -> {
+        Entity owner = mc.world.getEntityByID(message.owner);
+        Vec3d pos = owner.getPositionEyes(1);
         for (int i = 0; i < 100; i++) {
           Vec3d velocity = new Vec3d(1, 0, 0).rotateYaw(Util.randAngle(2f)).rotatePitch(Util.randAngle(0.5f));
-          mc.effectRenderer.addEffect(new ChargeFlameParticle(mc.world, message.pos, velocity));
+          mc.effectRenderer.addEffect(new ChargeFlameParticle(mc.world, pos, velocity));
         }
-        Util.playSound(message.owner, message.pos, Sounds.CHARGE_FLAME_END);
+        Util.playSound(owner, pos, Sounds.CHARGE_FLAME_END);
       });
       return null;
     }
   }
 
-  private Entity owner;
-  private Vec3d pos;
+  private int owner;
 
   public ChargeFlameMessage() {}
   
-  public ChargeFlameMessage(Entity owner, Vec3d pos) {
-    this.owner = owner;
-    this.pos = pos;
+  public ChargeFlameMessage(Entity owner) {
+    this.owner = owner.getEntityId();
   }
 
   @Override
-  @SideOnly(Side.CLIENT)
   public void fromBytes(ByteBuf buf) {
-    this.owner = Minecraft.getMinecraft().world.getEntityByID(buf.readInt());
-    this.pos = new Vec3d(buf.readDouble(), buf.readDouble(), buf.readDouble());
+    this.owner = buf.readInt();
   }
 
   @Override
   public void toBytes(ByteBuf buf) {
-    buf.writeInt(this.owner.getEntityId());
-    buf.writeDouble(this.pos.x);
-    buf.writeDouble(this.pos.y);
-    buf.writeDouble(this.pos.z);
+    buf.writeInt(this.owner);
   }
 
   public static void register() {

@@ -5,7 +5,6 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.entity.Entity;
 import net.minecraft.util.SoundEvent;
 import net.minecraft.util.math.Vec3d;
-import net.minecraftforge.fml.common.network.NetworkRegistry.TargetPoint;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
@@ -27,11 +26,11 @@ public class SoundMessage implements IMessage {
   }
 
   public static void play(Entity ent, SoundEvent sound) {
-    Mod.NETWORK.sendToAllAround(new SoundMessage(ent, ent.getPositionVector(), sound), new TargetPoint(ent.dimension, ent.posX, ent.posY, ent.posZ, 18));
+    Mod.NETWORK.sendToAllAround(new SoundMessage(ent, ent.getPositionVector(), sound), Util.getTargetPoint(ent, 18));
   }
 
   public static void play(Entity ent, Vec3d position, SoundEvent sound) {
-    Mod.NETWORK.sendToAllAround(new SoundMessage(ent, position, sound), new TargetPoint(ent.dimension, ent.posX, ent.posY, ent.posZ, 18));
+    Mod.NETWORK.sendToAllAround(new SoundMessage(ent, position, sound), Util.getTargetPoint(ent, 18));
   }
 
   private Entity entity;

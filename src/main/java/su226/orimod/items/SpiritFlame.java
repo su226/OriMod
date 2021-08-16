@@ -6,7 +6,6 @@ import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.OpenGlHelper;
 import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.renderer.tileentity.TileEntityItemStackRenderer;
-import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.passive.EntityTameable;
 import net.minecraft.entity.player.EntityPlayer;
@@ -18,7 +17,6 @@ import net.minecraft.util.EnumActionResult;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.Vec3d;
-import net.minecraft.world.Explosion;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -30,25 +28,10 @@ import su226.orimod.capabilities.IChargeable;
 import su226.orimod.messages.SpiritFlameMessage;
 import su226.orimod.messages.ChargeFlameMessage;
 import su226.orimod.others.Models;
+import su226.orimod.others.PureExplosion;
 import su226.orimod.others.Util;
 
 public class SpiritFlame extends Item {
-  private static class ChargeFlame extends Explosion {
-    private Entity owner;
-    private int dimension;
-  
-    public ChargeFlame(Entity owner, Vec3d pos) {
-      super(owner.world, owner, pos.x, pos.y, pos.z, (float)Config.SPIRIT_FLAME.EXPLOSION_FORCE, false, false);
-      this.owner = owner;
-      this.dimension = owner.dimension;
-    }
-
-    public void explode() {
-      this.doExplosionA();
-      Mod.NETWORK.sendToDimension(new ChargeFlameMessage(owner, this.getPosition()), this.dimension);
-    }
-  }
-
   private static class Render extends TileEntityItemStackRenderer {
     @Override
     public void renderByItem(ItemStack stack, float unused) {
@@ -148,7 +131,8 @@ public class SpiritFlame extends Item {
     if (world.isRemote) {
       stack.getCapability(Capabilities.CHARGEABLE, null).endCharge();
     } else if (duration > Config.SPIRIT_FLAME.CHARGE_DURATION) {
-      new ChargeFlame(owner, owner.getPositionEyes(1)).explode();
+      new PureExplosion(owner, Config.SPIRIT_FLAME.EXPLOSION_FORCE).doExplosionA();
+      Mod.NETWORK.sendToAllAround(new ChargeFlameMessage(owner), Util.getTargetPoint(owner, 32));
     }
   }
 
@@ -175,14 +159,14 @@ public class SpiritFlame extends Item {
 
   public void attack(EntityPlayer owner, EntityLivingBase ent) {
     ent.attackEntityFrom(DamageSource.causePlayerDamage(owner), (float)Config.SPIRIT_FLAME.DAMAGE);
-    Mod.NETWORK.sendToDimension(new SpiritFlameMessage(owner, ent), owner.dimension);
+    Mod.NETWORK.sendToAllAround(new SpiritFlameMessage(owner, ent), Util.getTargetPoint(ent, 32));
   }
 
   public void attackNothing(EntityPlayer owner) {
-    Mod.NETWORK.sendToDimension(new SpiritFlameMessage(owner, owner.getLookVec()
+    Mod.NETWORK.sendToAllAround(new SpiritFlameMessage(owner, owner.getLookVec()
       .rotateYaw(Util.rand(-ANGLE, ANGLE))
       .rotatePitch(Util.rand(-ANGLE, ANGLE))
       .scale(Util.rand(0, 0.5) * Config.SPIRIT_FLAME.RADIUS)
-    ), owner.dimension);
+    ), Util.getTargetPoint(owner, 32));
   }
 }

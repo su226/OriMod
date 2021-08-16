@@ -266,6 +266,7 @@ public class Models {
     Items.SPIRIT_FLAME.setModel();
     Items.DOUBLE_JUMP.setModel();
     Items.TRIPLE_JUMP.setModel();
+    Items.STOMP.setModel();
     Items.WALL_JUMP.setModel();
     Items.CLIMB.setModel();
   }

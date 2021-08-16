@@ -5,7 +5,6 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.entity.Entity;
 import net.minecraft.util.SoundEvent;
 import net.minecraft.util.math.Vec3d;
-import net.minecraft.world.World;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
@@ -20,11 +19,14 @@ public abstract class ProjectileHitMessage implements IMessage {
     @Override
     @SideOnly(Side.CLIENT)
     public IMessage onMessage(T message, MessageContext ctx) {
-      Minecraft.getMinecraft().addScheduledTask(() -> {
-        if (message.hit != null) {
-          Util.playSound(message.hit, message.start, message.getHitEntitySound());
+      Minecraft mc = Minecraft.getMinecraft();
+      mc.addScheduledTask(() -> {
+        Entity hit = message.hit == -1 ? null : mc.world.getEntityByID(message.hit);
+        Entity owner = mc.world.getEntityByID(message.owner);
+        if (hit != null) {
+          Util.playSound(hit, message.start, message.getHitEntitySound());
         } else {
-          Util.playSound(message.owner, message.start, message.getHitGroundSound());
+          Util.playSound(owner, message.start, message.getHitGroundSound());
         }
         Vec3d delta = message.end.subtract(message.start).normalize();
         Vec3d move = Util.perpendicular(delta).normalize();
@@ -38,16 +40,16 @@ public abstract class ProjectileHitMessage implements IMessage {
     }
   }
 
-  protected Entity owner;
-  protected Entity hit;
+  protected int owner;
+  protected int hit;
   protected Vec3d start;
   protected Vec3d end;
 
   public ProjectileHitMessage() {}
   
   public ProjectileHitMessage(Entity owner, Entity hit, Vec3d start, Vec3d end) {
-    this.owner = owner;
-    this.hit = hit;
+    this.owner = owner.getEntityId();
+    this.hit = hit == null ? -1 : hit.getEntityId();
     this.start = start;
     this.end = end;
   }
@@ -55,18 +57,16 @@ public abstract class ProjectileHitMessage implements IMessage {
   @Override
   @SideOnly(Side.CLIENT)
   public void fromBytes(ByteBuf buf) {
-    World world = Minecraft.getMinecraft().world;
-    this.owner = world.getEntityByID(buf.readInt());
-    int hitId = buf.readInt();
-    this.hit = hitId == -1 ? null : world.getEntityByID(hitId);
+    this.owner = buf.readInt();
+    this.hit = buf.readInt();
     this.start = new Vec3d(buf.readDouble(), buf.readDouble(), buf.readDouble());
     this.end = new Vec3d(buf.readDouble(), buf.readDouble(), buf.readDouble());
   }
 
   @Override
   public void toBytes(ByteBuf buf) {
-    buf.writeInt(this.owner.getEntityId());
-    buf.writeInt(this.hit == null ? -1 : this.hit.getEntityId());
+    buf.writeInt(this.owner);
+    buf.writeInt(this.hit);
     buf.writeDouble(this.start.x);
     buf.writeDouble(this.start.y);
     buf.writeDouble(this.start.z);

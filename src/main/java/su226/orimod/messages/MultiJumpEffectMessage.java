@@ -23,35 +23,36 @@ public class MultiJumpEffectMessage implements IMessage {
     public IMessage onMessage(MultiJumpEffectMessage message, MessageContext ctx) {
       Minecraft mc = Minecraft.getMinecraft();
       mc.addScheduledTask(() -> {
-        Util.playSound(message.entity, Sounds.MULTI_JUMP);
+        Entity ent = mc.world.getEntityByID(message.entity);
+        Util.playSound(ent, Sounds.MULTI_JUMP);
         Vec3d delta = new Vec3d(0, -1, 0);
         Vec3d move = new Vec3d(1, 0, 0);
         for (int i = 0; i < PARTICLE_COUNT; i++) {
           Vec3d velocity = delta.add(move.rotateYaw(Util.randAngle(2)).scale(Math.random())).normalize().scale(Math.random());
-          mc.world.spawnParticle(EnumParticleTypes.CLOUD, message.entity.posX, message.entity.posY, message.entity.posZ, velocity.x, velocity.y, velocity.z);
+          mc.world.spawnParticle(EnumParticleTypes.CLOUD, ent.posX, ent.posY, ent.posZ, velocity.x, velocity.y, velocity.z);
         }
       });
       return null;
     }
   }
 
-  private Entity entity;
+  private int entity;
 
   public MultiJumpEffectMessage() {}
   
   public MultiJumpEffectMessage(Entity entity) {
-    this.entity = entity;
+    this.entity = entity.getEntityId();
   }
 
   @Override
   @SideOnly(Side.CLIENT)
   public void fromBytes(ByteBuf buf) {
-    this.entity = Minecraft.getMinecraft().world.getEntityByID(buf.readInt());
+    this.entity = buf.readInt();
   }
 
   @Override
   public void toBytes(ByteBuf buf) {
-    buf.writeInt(this.entity.getEntityId());
+    buf.writeInt(this.entity);
   }
 
   public static void register() {

@@ -25,15 +25,10 @@ import su226.orimod.items.LightBurst;
 import su226.orimod.items.SpiritFlame;
 import su226.orimod.messages.LightBurstMessage;
 import su226.orimod.others.Models;
+import su226.orimod.others.PureExplosion;
 import su226.orimod.others.Util;
 
 public class LightBurstEntity extends EntityThrowable {
-  public static class Explosion extends net.minecraft.world.Explosion {
-    public Explosion(LightBurstEntity ent, Vec3d pos) {
-      super(ent.world, ent.thrower, pos.x, pos.y, pos.z, (float)Config.LIGHT_BURST.EXPLOSION_FORCE, false, false);
-    }
-  }
-
   public static class Render extends net.minecraft.client.renderer.entity.Render<LightBurstEntity> {
     public static Factory FACTORY = new Factory();
     public static ItemStack STACK;
@@ -126,8 +121,8 @@ public class LightBurstEntity extends EntityThrowable {
       } else {
         hit = ray.hitVec;
       }
-      new Explosion(this, hit).doExplosionA();
-      Mod.NETWORK.sendToDimension(new LightBurstMessage(this.thrower, null, hit, pos), this.dimension);
+      new PureExplosion(this, this.thrower, Config.LIGHT_BURST.EXPLOSION_FORCE).doExplosionA();
+      Mod.NETWORK.sendToAllAround(new LightBurstMessage(this.thrower, null, hit, pos), Util.getTargetPoint(this, 32));
       this.setDead();
     }
   }

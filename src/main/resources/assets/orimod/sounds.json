@@ -153,5 +153,38 @@
       "orimod:multi_jump_4",
       "orimod:multi_jump_5"
     ]
+  },
+  "wall_jump": {
+    "subtitle": "orimod.sound.wall_jump",
+    "sounds": [
+      "orimod:wall_jump_1",
+      "orimod:wall_jump_2",
+      "orimod:wall_jump_3",
+      "orimod:wall_jump_4",
+      "orimod:wall_jump_5"
+    ]
+  },
+  "stomp_start": {
+    "subtitle": "orimod.sound.stomp_start",
+    "sounds": [
+      "orimod:stomp_start_1",
+      "orimod:stomp_start_2",
+      "orimod:stomp_start_3"
+    ]
+  },
+  "stomp_fall": {
+    "subtitle": "orimod.sound.stomp_fall",
+    "sounds": [
+      "orimod:stomp_fall_1",
+      "orimod:stomp_fall_2",
+      "orimod:stomp_fall_3"
+    ]
+  },
+  "stomp_hit": {
+    "subtitle": "orimod.sound.stomp_hit",
+    "sounds": [
+      "orimod:stomp_hit_1",
+      "orimod:stomp_hit_2"
+    ]
   }
 }

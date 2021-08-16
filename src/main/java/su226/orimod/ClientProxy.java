@@ -68,9 +68,15 @@ public class ClientProxy extends CommonProxy {
   }
 
   @SubscribeEvent
-	public static void renderPlayerPre(RenderPlayerEvent.Pre event) {
-    Items.KUROS_FEATHER.renderPlayerPre(event.getEntityPlayer(), event.getRenderer());
-	}
+  public static void renderPlayerPre(RenderPlayerEvent.Pre event) {
+    Items.KUROS_FEATHER.renderPlayerPre(event);
+    Items.STOMP.renderPlayerPre(event);
+  }
+
+  @SubscribeEvent
+  public static void renderPlayerPost(RenderPlayerEvent.Post event) {
+    Items.STOMP.renderPlayerPost(event);
+  }
 
   @SubscribeEvent
   public static void renderGameOverlayPost(RenderGameOverlayEvent.Post event) {

@@ -10,6 +10,7 @@ import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 import net.minecraftforge.fml.relauncher.Side;
 import su226.orimod.Config;
 import su226.orimod.Mod;
+import su226.orimod.others.Sounds;
 
 public class WallJumpMessage implements IMessage {
   public static class Handler implements IMessageHandler<WallJumpMessage, IMessage> {
@@ -18,13 +19,14 @@ public class WallJumpMessage implements IMessage {
       EntityPlayerMP player = ctx.getServerHandler().player;
       WorldServer world = player.getServerWorld();
       world.addScheduledTask(() -> {
-        AxisAlignedBB cling = player.getEntityBoundingBox().grow(0.01, 0, 0.01);
+        AxisAlignedBB cling = player.getEntityBoundingBox().grow(Config.JUMP_AND_CLIMB.WALL_THRESOLD, 0, Config.JUMP_AND_CLIMB.WALL_THRESOLD);
         if (world.collidesWithAnyBlock(cling)) {
           player.jump();
           player.motionY *= Config.JUMP_AND_CLIMB.WALL_JUMP_MULTIPLIER;
           player.fallDistance = 0;
           player.velocityChanged = true;
         }
+        SoundMessage.play(player, Sounds.WALL_JUMP);
       });
       return null;
     }

@@ -18,6 +18,8 @@ public class Messages {
     SpiritArcMessage.register();
     SpiritFlameMessage.register();
     SpiritLightSyncMessage.register();
+    StompMessage.register();
+    StompEffectMessage.register();
     WallJumpMessage.register();
   }
 }

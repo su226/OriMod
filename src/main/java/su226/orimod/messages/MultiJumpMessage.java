@@ -9,6 +9,7 @@ import net.minecraftforge.fml.relauncher.Side;
 import su226.orimod.Config;
 import su226.orimod.Mod;
 import su226.orimod.capabilities.Capabilities;
+import su226.orimod.others.Util;
 
 public class MultiJumpMessage implements IMessage {
   public static class Handler implements IMessageHandler<MultiJumpMessage, IMessage> {
@@ -16,12 +17,12 @@ public class MultiJumpMessage implements IMessage {
     public IMessage onMessage(MultiJumpMessage message, MessageContext ctx) {
       EntityPlayerMP player = ctx.getServerHandler().player;
       player.getServerWorld().addScheduledTask(() -> {
-        if (player.getCapability(Capabilities.MULTI_JUMP, null).doJump()) {
+        if (player.getCapability(Capabilities.COOLDOWN, null).doAction("multi_jump")) {
           player.jump();
           player.motionY *= Config.JUMP_AND_CLIMB.MULTI_JUMP_MULTIPLIER;
           player.fallDistance = 0;
           player.velocityChanged = true;
-          Mod.NETWORK.sendToDimension(new MultiJumpEffectMessage(player), player.dimension);
+          Mod.NETWORK.sendToAllAround(new MultiJumpEffectMessage(player), Util.getTargetPoint(player, 32));
         }
       });
       return null;

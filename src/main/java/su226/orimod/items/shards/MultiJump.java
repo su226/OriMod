@@ -6,7 +6,7 @@ import net.minecraft.item.ItemStack;
 import su226.orimod.Mod;
 import su226.orimod.blocks.SpiritSmithingTable;
 import su226.orimod.capabilities.Capabilities;
-import su226.orimod.capabilities.IMultiJump;
+import su226.orimod.capabilities.ICooldown;
 import su226.orimod.items.Items;
 import su226.orimod.messages.MultiJumpMessage;
 import su226.orimod.others.Util;
@@ -55,14 +55,14 @@ public abstract class MultiJump extends Shard {
     if (!isMaxPriority) {
       return;
     }
-    IMultiJump cap = owner.getCapability(Capabilities.MULTI_JUMP, null);
+    ICooldown cap = owner.getCapability(Capabilities.COOLDOWN, null);
     if (owner.world.isRemote) {
-      if (Util.canAirJump((EntityPlayerSP)owner) && cap.doJump()) {
+      if (Util.canAirJump((EntityPlayerSP)owner) && cap.doAction("multi_jump")) {
         Mod.NETWORK.sendToServer(new MultiJumpMessage());
       }
     }
     if (owner.onGround) {
-      cap.resetJump(this.getJumpCount());
+      cap.setCooldown("multi_jump", this.getJumpCount(), -1);
     }
   }
 

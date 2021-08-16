@@ -20,10 +20,10 @@ import net.minecraftforge.fml.common.gameevent.TickEvent.PlayerTickEvent;
 import net.minecraftforge.fml.common.registry.EntityEntry;
 import su226.orimod.blocks.Blocks;
 import su226.orimod.capabilities.Capabilities;
+import su226.orimod.capabilities.ICooldown;
 import su226.orimod.capabilities.IEquipper;
 import su226.orimod.capabilities.IHasEntity;
 import su226.orimod.capabilities.IKurosFeather;
-import su226.orimod.capabilities.IMultiJump;
 import su226.orimod.capabilities.ISpiritLight;
 import su226.orimod.entities.Entities;
 import su226.orimod.items.Items;
@@ -70,7 +70,7 @@ public class CommonProxy {
       EntityPlayer player = (EntityPlayer)event.getObject();
       event.addCapability(Util.getLocation("equiper"), new IEquipper.Provider());
       event.addCapability(Util.getLocation("kuros_feather"), new IKurosFeather.Provider());
-      event.addCapability(Util.getLocation("multi_jump"), new IMultiJump.Provider());
+      event.addCapability(Util.getLocation("cooldown"), new ICooldown.Provider(player));
       event.addCapability(Util.getLocation("spirit_light"), new ISpiritLight.Provider(player));
     }
   }
@@ -91,6 +91,7 @@ public class CommonProxy {
   @SubscribeEvent
   public static void livingAttack(LivingAttackEvent event) {
     Items.KUROS_FEATHER.livingAttack(event);
+    Items.STOMP.livingAttack(event);
   }
 
   @SubscribeEvent

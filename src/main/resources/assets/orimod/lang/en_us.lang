@@ -88,6 +88,12 @@ config.orimod.jump_and_climb.multi_jump_multiplier=Multi Jump Multiplier
 config.orimod.jump_and_climb.multi_jump_multiplier.tooltip=Jump multiplier for multi jump.
 config.orimod.jump_and_climb.climb_muliplier=Climb Multiplier
 config.orimod.jump_and_climb.climb_muliplier.tooltip=Velocity multiplier for climbing.
+config.orimod.stomp=Stomp
+config.orimod.stomp.tooltip=Config for stomp
+config.orimod.stomp.force=Force
+config.orimod.stomp.force.tooltip=Blast froce for stomp.
+config.orimod.stomp.charge_time=Charge Time
+config.orimod.stomp.charge_time.tooltip=Charge time for stomp in ticks.
 
 maid_pack.orimod.name=OriMod
 maid_pack.orimod.desc=Models included in OriMod
@@ -108,6 +114,7 @@ item.orimod.shard_double_jump.name=Double Jump
 item.orimod.shard_triple_jump.name=Triple Jump
 item.orimod.shard_wall_jump.name=Wall Jump
 item.orimod.shard_climb.name=Climb
+item.orimod.shard_stomp.name=Stomp
 
 entity.orimod.arrow.name=Spirit Arc Arrow
 entity.orimod.light_burst.name=Light Burst
@@ -131,6 +138,10 @@ orimod.sound.light_burst_throw=Light Burst: Throw
 orimod.sound.light_burst_hit_entity=Light Burst: Hit Entity
 orimod.sound.light_burst_hit_ground=Light Burst: Hit Ground
 orimod.sound.multi_jump=Multi Jump
+orimod.sound.wall_jump=Wall Jump
+orimod.sound.stomp_start=Stomp: Start
+orimod.sound.stomp_fall=Stomp: Fall
+orimod.sound.stomp_hit=Stomp: Hit
 
 gui.orimod.spirit_smithing_table=Spirit Light Smithing
 

@@ -6,6 +6,7 @@ import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.registries.IForgeRegistry;
 import su226.orimod.items.shards.MultiJump;
+import su226.orimod.items.shards.Stomp;
 import su226.orimod.items.shards.WallJumpBase.Climb;
 import su226.orimod.items.shards.WallJumpBase.WallJump;
 
@@ -29,6 +30,7 @@ public class Items {
 
   public static final MultiJump.Double DOUBLE_JUMP = new MultiJump.Double();
   public static final MultiJump.Triple TRIPLE_JUMP = new MultiJump.Triple();
+  public static final Stomp STOMP = new Stomp();
   public static final WallJump WALL_JUMP = new WallJump();
   public static final Climb CLIMB = new Climb();
 
@@ -44,6 +46,7 @@ public class Items {
       SPIRIT_FLAME,
       DOUBLE_JUMP,
       TRIPLE_JUMP,
+      STOMP,
       WALL_JUMP,
       CLIMB
     );

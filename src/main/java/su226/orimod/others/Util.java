@@ -25,6 +25,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
+import net.minecraftforge.fml.common.network.NetworkRegistry.TargetPoint;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.registries.IRegistryDelegate;
@@ -152,6 +153,10 @@ public class Util {
 
   public static boolean isAirBorne(EntityLivingBase ent) {
     return !ent.onGround && !ent.world.containsAnyLiquid(ent.getEntityBoundingBox()) && !ent.isOnLadder();
+  }
+
+  public static TargetPoint getTargetPoint(Entity ent, double range) {
+    return new TargetPoint(ent.dimension, ent.posX, ent.posY, ent.posZ, range);
   }
 
   // ========== 向量 ==========
