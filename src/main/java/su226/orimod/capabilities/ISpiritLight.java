@@ -5,6 +5,7 @@ import java.util.concurrent.Callable;
 import org.lwjgl.opengl.GL11;
 
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.entity.EntityLivingBase;
@@ -199,16 +200,18 @@ public interface ISpiritLight {
     GlStateManager.popMatrix();
     Minecraft mc = Minecraft.getMinecraft();
     String str = Integer.toString(mc.player.getCapability(Capabilities.SPIRIT_LIGHT, null).get());
-    GlStateManager.disableBlend();
     GlStateManager.pushMatrix();
     GlStateManager.translate(x + 16 - mc.fontRenderer.getStringWidth(str), y + 32, 0);
     GlStateManager.scale(2, 2, 1);
     mc.fontRenderer.drawStringWithShadow(str, 0, 0, 0xffff55);
     GlStateManager.popMatrix();
+    // Reset state or vanilla HUD will be displayed incorrectly. Don't call disableBlend here.
+    GlStateManager.alphaFunc(GL11.GL_GREATER, 0.1f);
+    GlStateManager.color(1, 1, 1);
+    mc.getTextureManager().bindTexture(Gui.ICONS);
   }
 
   static void playerClone(PlayerEvent.Clone event) {
-
     event.getEntityPlayer().getCapability(Capabilities.SPIRIT_LIGHT, null).set(event.getOriginal().getCapability(Capabilities.SPIRIT_LIGHT, null).get());
   }
 }

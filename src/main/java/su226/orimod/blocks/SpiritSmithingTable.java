@@ -45,7 +45,7 @@ public class SpiritSmithingTable extends Block {
       public int getSlotStackLimit() {
         return 1;
       }
-      
+
       public void onSlotChanged() {
         ItemStack stack = this.getStack();
         recipe = findRecipe(stack);
@@ -60,7 +60,7 @@ public class SpiritSmithingTable extends Block {
       public boolean isItemValid(ItemStack stack) {
         return false;
       }
-      
+
       public ItemStack onTake(EntityPlayer player, ItemStack stack) {
         if (!player.world.isRemote) {
           player.getCapability(Capabilities.SPIRIT_LIGHT, null).cost(recipe.getCost());
@@ -87,7 +87,7 @@ public class SpiritSmithingTable extends Block {
         this.addSlotToContainer(new Slot(player.inventory, x, 8 + x * 18, 142));
       }
     }
-    
+
     @Override
     public boolean canInteractWith(EntityPlayer player) {
       if (player.world.getBlockState(this.pos).getBlock() == Blocks.SPIRIT_SMITHING_TABLE) {
@@ -166,7 +166,7 @@ public class SpiritSmithingTable extends Block {
       SpiritLightOrb.Render.TEXTURE);
       GlStateManager.disableBlend();
     }
-    
+
     @Override
     protected void drawGuiContainerForegroundLayer(int x, int y) {
       this.fontRenderer.drawString(I18n.format("gui.orimod.spirit_smithing_table"), 51, 18, 0x404040);
