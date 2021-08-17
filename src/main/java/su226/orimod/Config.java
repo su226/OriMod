@@ -17,6 +17,9 @@ public class Config {
   @LangKey("config.orimod.tools")
   public static Tools TOOLS = new Tools();
 
+  @LangKey("config.orimod.double_click_max_interval")
+  public static int DOUBLE_CLICK_MAX_INTERVAL = 5;
+
   public static class Tools {
     @RequiresMcRestart
     @LangKey("config.orimod.tools.harvest_level")
@@ -169,9 +172,9 @@ public class Config {
   }
 
   @LangKey("config.orimod.jump_and_climb")
-  public static WallJump JUMP_AND_CLIMB = new WallJump();
+  public static JumpAndClimb JUMP_AND_CLIMB = new JumpAndClimb();
 
-  public static class WallJump {
+  public static class JumpAndClimb {
     @LangKey("config.orimod.jump_and_climb.wall_velocity_fraction")
     @RangeDouble(min = 0, max = 1)
     public double WALL_VELOCITY_FRACTION = 0.75;
@@ -195,5 +198,22 @@ public class Config {
     @LangKey("config.orimod.jump_and_climb.climb_muliplier")
     @RangeDouble(min = 0)
     public double CLIMB_MULTIPLIER = 1;
+  }
+
+  @LangKey("config.orimod.stomp")
+  public static Stomp STOMP = new Stomp();
+
+  public static class Stomp {
+    @LangKey("config.orimod.stomp.force")
+    @RangeInt(min = 0)
+    public int FORCE = 3;
+
+    @LangKey("config.orimod.stomp.charge_time")
+    @RangeInt(min = 0)
+    public int CHARGE_TIME = 8;
+
+    @LangKey("config.orimod.stomp.velocity")
+    @RangeDouble(min = 0)
+    public int VELOCITY = 1;
   }
 }

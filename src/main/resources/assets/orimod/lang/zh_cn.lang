@@ -2,6 +2,8 @@ config.orimod.3d_model=3D模型
 config.orimod.3d_model.tooltip=为支持的物品启用全3D模型
 config.orimod.glow_color=发光颜色
 config.orimod.glow_color.tooltip=3D模型边缘的发光颜色，ARGB顺序的32bit数字
+config.orimod.double_click_max_interval=双击最大时间
+config.orimod.double_click_max_interval.tooltip=以刻为单位的双击最大时间。
 config.orimod.tools=工具
 config.orimod.tools.tooltip=工具相关配置，影响所有类原版工具
 config.orimod.tools.harvest_level=挖掘等级
@@ -94,6 +96,8 @@ config.orimod.stomp.force=威力
 config.orimod.stomp.force.tooltip=践踏攻击的威力
 config.orimod.stomp.charge_time=充能时间
 config.orimod.stomp.charge_time.tooltip=践踏攻击的充能时间
+config.orimod.stomp.velocity=速度
+config.orimod.stomp.velocity.tooltip=践踏攻击的速度
 
 maid_pack.orimod.name=OriMod
 maid_pack.orimod.desc=OriMod 附带的模型

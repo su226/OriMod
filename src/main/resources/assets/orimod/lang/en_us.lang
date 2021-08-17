@@ -2,6 +2,8 @@ config.orimod.3d_model=3D Model
 config.orimod.3d_model.tooltip=Enable full-3d model for supported items
 config.orimod.glow_color=Glow Color
 config.orimod.glow_color.tooltip=Edge glow color for 3d models, 32-bit number in ARGB order
+config.orimod.double_click_max_interval=Double Click Max Interval
+config.orimod.double_click_max_interval.tooltip=Max interval for double click, in ticks.
 config.orimod.tools=Tools
 config.orimod.tools.tooltip=Config for tools, affect on all vanilla-like tools
 config.orimod.tools.harvest_level=Harvest Level
@@ -94,6 +96,8 @@ config.orimod.stomp.force=Force
 config.orimod.stomp.force.tooltip=Blast froce for stomp.
 config.orimod.stomp.charge_time=Charge Time
 config.orimod.stomp.charge_time.tooltip=Charge time for stomp in ticks.
+config.orimod.stomp.velocity=Velocity
+config.orimod.stomp.velocity.tooltip=Velocity for stomp.
 
 maid_pack.orimod.name=OriMod
 maid_pack.orimod.desc=Models included in OriMod

@@ -5,7 +5,7 @@ import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.math.MathHelper;
 import net.minecraftforge.client.event.RenderPlayerEvent;
-import net.minecraftforge.event.entity.living.LivingAttackEvent;
+import su226.orimod.Config;
 import su226.orimod.Mod;
 import su226.orimod.capabilities.Capabilities;
 import su226.orimod.capabilities.ICooldown;
@@ -24,14 +24,13 @@ public class Stomp extends Shard {
   private boolean prevSneak;
   private int lastClick;
   private int stompTick;
-  private static final int MAX_INTERVAL = 8;
 
   @Override
   public void onEquipableUpdate(EntityPlayer owner, boolean isMaxPriority) {
     if (owner.world.isRemote) {
       EntityPlayerSP player = (EntityPlayerSP)owner;
       if (!player.onGround && player.movementInput.sneak && !this.prevSneak) {
-        if (owner.ticksExisted - this.lastClick > MAX_INTERVAL) {
+        if (owner.ticksExisted - this.lastClick > Config.DOUBLE_CLICK_MAX_INTERVAL) {
           this.lastClick = owner.ticksExisted;
         } else {
           this.lastClick = 0;
@@ -49,21 +48,20 @@ public class Stomp extends Shard {
       int tick = owner.ticksExisted - cap.getLastAction("stomp");
       if (owner.onGround) {
         cap.setCooldown("stomp", 1, -1);
-        cap.setCooldown("stomp_no_fall", 1, 10);
-        cap.doAction("stomp_no_fall");
         owner.setNoGravity(false);
         if (!owner.world.isRemote) {
-          new PureExplosion(owner, 3).doExplosionA();
+          new PureExplosion(owner, Config.STOMP.FORCE).doExplosionA();
           Mod.NETWORK.sendToAllAround(new StompEffectMessage(owner), Util.getTargetPoint(owner, 32));
         }
-      } else if (tick >= 8) {
-        if (tick == 8) {
+      } else if (tick >= Config.STOMP.CHARGE_TIME) {
+        if (tick == Config.STOMP.CHARGE_TIME) {
           SoundMessage.play(owner, Sounds.STOMP_FALL);
         }
-        if (owner.motionY > -1) {
-          owner.motionY = -1;
+        if (owner.motionY > -Config.STOMP.VELOCITY) {
+          owner.motionY = -Config.STOMP.VELOCITY;
           owner.velocityChanged = true;
         }
+        owner.fallDistance = 0;
       } else if (owner.motionY != 0.1) {
         owner.motionY = 0.1;
         owner.velocityChanged = true;
@@ -77,13 +75,13 @@ public class Stomp extends Shard {
     }
     EntityPlayer owner = event.getEntityPlayer();
     float tick = owner.ticksExisted + event.getPartialRenderTick() - this.stompTick;
-    if (tick > MAX_INTERVAL) {
+    if (tick > Config.STOMP.CHARGE_TIME) {
       return;
     }
     GlStateManager.pushMatrix();
     GlStateManager.translate(0, 0.9, 0);
     float yaw = owner.rotationYaw / 180 * (float)Math.PI;
-    GlStateManager.rotate(tick / MAX_INTERVAL * 720, MathHelper.cos(yaw), 0, MathHelper.sin(yaw));
+    GlStateManager.rotate(tick / Config.STOMP.CHARGE_TIME * 720, MathHelper.cos(yaw), 0, MathHelper.sin(yaw));
     GlStateManager.translate(0, -0.9, 0);
   }
 
@@ -92,16 +90,9 @@ public class Stomp extends Shard {
       return;
     }
     float tick = event.getEntityPlayer().ticksExisted + event.getPartialRenderTick() - this.stompTick;
-    if (tick > MAX_INTERVAL) {
+    if (tick > Config.STOMP.CHARGE_TIME) {
       return;
     }
     GlStateManager.popMatrix();
-  }
-
-  public void livingAttack(LivingAttackEvent event) {
-    ICooldown cap = event.getEntity().getCapability(Capabilities.COOLDOWN, null);
-    if (cap != null && cap.isInCooldown("stomp_no_fall") && event.getSource().damageType.equals("fall")) {
-      event.setCanceled(true);
-    }
   }
 }

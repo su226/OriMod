@@ -91,7 +91,6 @@ public class CommonProxy {
   @SubscribeEvent
   public static void livingAttack(LivingAttackEvent event) {
     Items.KUROS_FEATHER.livingAttack(event);
-    Items.STOMP.livingAttack(event);
   }
 
   @SubscribeEvent
