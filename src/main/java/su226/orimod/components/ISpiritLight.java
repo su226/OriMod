@@ -24,7 +24,7 @@ import su226.orimod.packets.SpiritLightSyncPacket;
 public interface ISpiritLight extends ComponentV3, ClientTickingComponent, ServerTickingComponent {
   class Player implements PlayerComponent<ISpiritLight>, ISpiritLight {
     private int amount;
-    private boolean dirty;
+    private boolean dirty = true;
     private final PlayerEntity player;
     public static int hudTick;
 
