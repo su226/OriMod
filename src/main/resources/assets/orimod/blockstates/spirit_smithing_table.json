@@ -1,7 +1,5 @@
 {
   "variants": {
-    "normal": {
-      "model": "orimod:spirit_smithing_table"
-    }
+    "": { "model": "orimod:block/spirit_smithing_table" }
   }
 }

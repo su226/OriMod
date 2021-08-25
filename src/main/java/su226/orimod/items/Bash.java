@@ -1,153 +1,123 @@
 package su226.orimod.items;
 
-import java.util.List;
-
-import net.minecraft.client.renderer.GlStateManager;
-import net.minecraft.client.renderer.OpenGlHelper;
-import net.minecraft.client.renderer.block.model.BakedQuad;
-import net.minecraft.client.renderer.tileentity.TileEntityItemStackRenderer;
+import net.minecraft.client.render.*;
+import net.minecraft.client.render.model.BakedModel;
+import net.minecraft.client.render.model.json.ModelTransformation;
+import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityLiving;
-import net.minecraft.entity.EntityLivingBase;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.item.EnumAction;
+import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.mob.MobEntity;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.ActionResult;
-import net.minecraft.util.EnumActionResult;
-import net.minecraft.util.EnumHand;
+import net.minecraft.sound.SoundCategory;
+import net.minecraft.util.Hand;
+import net.minecraft.util.TypedActionResult;
+import net.minecraft.util.UseAction;
+import net.minecraft.util.math.Quaternion;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
-import su226.orimod.Config;
+import su226.orimod.Mod;
 import su226.orimod.blocks.SpiritSmithingTable;
-import su226.orimod.capabilities.Capabilities;
-import su226.orimod.messages.SoundMessage;
-import su226.orimod.others.Models;
+import su226.orimod.components.Components;
+import su226.orimod.others.ICustomRender;
+import su226.orimod.others.Render;
 import su226.orimod.others.Sounds;
 import su226.orimod.others.Util;
 
-public class Bash extends Item {
-  private static class Render extends TileEntityItemStackRenderer {
-    @Override
-    public void renderByItem(ItemStack stack, float unused) {
-      GlStateManager.disableLighting();
-      GlStateManager.enableCull();
-      OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, 240, 240);
-      Models.renderItemModel(MODEL);
-      Models.renderItemModel(MODEL_OVERLAY, Config.GLOW_COLOR);
-      GlStateManager.enableLighting();
-    }
-  }
-
-  private static List<BakedQuad> MODEL;
-  private static List<BakedQuad> MODEL_OVERLAY;
+public class Bash extends Item implements ICustomRender {
+  private static final String MODEL = "item/3d/bash";
+  private static final String MODEL_OVERLAY = "item/3d/bash_overlay";
 
   public Bash() {
-    super();
-    this.setRegistryName(Util.getLocation("bash"));
-    this.setUnlocalizedName(Util.getI18nKey("bash"));
-    this.setCreativeTab(Items.CREATIVE_TAB);
-    this.setMaxStackSize(1);
+    super(new Settings().group(Items.GROUP).maxCount(1));
     SpiritSmithingTable.registerRecipe(new SpiritSmithingTable.Recipe(
-      new ItemStack(net.minecraft.init.Blocks.PISTON),
+      new ItemStack(net.minecraft.block.Blocks.PISTON),
       new ItemStack(this),
       300
     ));
   }
 
   @Override
-  public int getMaxItemUseDuration(ItemStack stack) {
-    return Config.BASH.TIMEOUT;
+  public void render(ItemStack stack, ModelTransformation.Mode mode, boolean left, MatrixStack mat, VertexConsumerProvider consumers, int light, int overlay, BakedModel model) {
+    if (!left) {
+      mat.multiply(new Quaternion(0, 180, 0, true));
+      mat.translate(-1, 0, -1);
+    }
+    VertexConsumer consumer = consumers.getBuffer(RenderLayer.getTranslucent());
+    Render.model(mat, consumer, MODEL, 0xffffffff, 0, 15728880);
+    Render.model(mat, consumer, MODEL_OVERLAY, Mod.CONFIG.glow_color, 0, 15728880);
   }
 
   @Override
-  public EnumAction getItemUseAction(ItemStack stack) {
-    return EnumAction.BOW;
+  public int getMaxUseTime(ItemStack stack) {
+    return Mod.CONFIG.bash.timeout;
   }
 
   @Override
-  public ActionResult<ItemStack> onItemRightClick(World world, EntityPlayer owner, EnumHand hand) {
-    ItemStack stack = owner.getHeldItem(hand);
-    if (!world.isRemote) {
-      Entity ent = Util.rayTraceEntity(owner, Config.BASH.RANGE);
+  public UseAction getUseAction(ItemStack stack) {
+    return UseAction.BOW;
+  }
+
+  @Override
+  public TypedActionResult<ItemStack> use(World world, PlayerEntity owner, Hand hand) {
+    ItemStack stack = owner.getStackInHand(hand);
+    if (!world.isClient) {
+      Entity ent = Util.rayTraceEntity(owner, Mod.CONFIG.bash.range, null);
       if (ent != null) {
         owner.setNoGravity(true);
         ent.setNoGravity(true);
-        setVelocity(owner, 0, 0, 0);
-        setVelocity(ent, 0, 0, 0);
-        stack.getCapability(Capabilities.HAS_ENTITY, null).setEntity(ent);
-        if (ent instanceof EntityLiving) {
-          ((EntityLiving)ent).setNoAI(true);
+        Util.setVelocity(owner, 0, 0, 0,true);
+        Util.setVelocity(ent, 0, 0, 0, true);
+        Components.BASH.get(stack).setEntity(ent);
+        if (ent instanceof MobEntity) {
+          ((MobEntity)ent).setAiDisabled(true);
         }
-        owner.setActiveHand(hand);
-        SoundMessage.play(owner, Sounds.BASH_START);
-        return new ActionResult<>(EnumActionResult.SUCCESS, stack);
+        owner.setCurrentHand(hand);
+        world.playSound(null, owner.getX(), owner.getY(), owner.getZ(), Sounds.BASH_START, SoundCategory.PLAYERS, 1, 1);
+        return TypedActionResult.success(stack);
       } else {
-        SoundMessage.play(owner, Sounds.BASH_NO_TARGET);
+        world.playSound(null, owner.getX(), owner.getY(), owner.getZ(), Sounds.BASH_NO_TARGET, SoundCategory.PLAYERS, 1, 1);
       }
     }
-    return new ActionResult<>(EnumActionResult.FAIL, stack);
+    return TypedActionResult.fail(stack);
   }
 
   @Override
-  public void onUsingTick(ItemStack stack, EntityLivingBase owner, int left) {
-    if (!owner.world.isRemote && left == 25) {
-      SoundMessage.play(owner, Sounds.BASH_TIMEOUT);
+  public void usageTick(World world, LivingEntity user, ItemStack stack, int remainingUseTicks) {
+    if (!world.isClient) {
+      Entity ent = Components.BASH.get(stack).getEntity();
+      Util.setVelocity(user, 0, 0, 0, true);
+      Util.setVelocity(ent, 0, 0, 0, true);
+      if (remainingUseTicks == 25) {
+        world.playSound(null, user.getX(), user.getY(), user.getZ(), Sounds.BASH_TIMEOUT, SoundCategory.PLAYERS, 1, 1);
+      }
     }
   }
 
   @Override
-  public ItemStack onItemUseFinish(ItemStack stack, World world, EntityLivingBase owner) {
-    this.finishBash(stack, owner);
+  public ItemStack finishUsing(ItemStack stack, World world, LivingEntity user) {
+    this.finishBash(stack, user);
     return stack;
   }
 
   @Override
-  public void onPlayerStoppedUsing(ItemStack stack, World world, EntityLivingBase owner, int timeLeft) {
-    this.finishBash(stack, owner);
+  public void onStoppedUsing(ItemStack stack, World world, LivingEntity user, int remainingUseTicks) {
+    this.finishBash(stack, user);
   }
 
   private void finishBash(ItemStack stack, Entity owner) {
-    if (!owner.world.isRemote) {
-      Entity ent = stack.getCapability(Capabilities.HAS_ENTITY, null).getEntity();
-      if (ent instanceof EntityLiving) {
-        ((EntityLiving)ent).setNoAI(false);
+    if (!owner.world.isClient) {
+      Entity ent = Components.BASH.get(stack).getEntity();
+      if (ent instanceof MobEntity) {
+        ((MobEntity)ent).setAiDisabled(false);
       }
-      Vec3d vec = owner.getLookVec().scale(Config.BASH.MULTIPLIER);
+      Vec3d vec = owner.getRotationVec(1).multiply(Mod.CONFIG.bash.multiplier);
       owner.setNoGravity(false);
       ent.setNoGravity(false);
-      setVelocity(owner, vec.x, vec.y, vec.z);
-      setVelocity(ent, -vec.x, -vec.y, -vec.z);
-      SoundMessage.play(owner, Sounds.BASH_END);
-    }
-  }
-
-  private void setVelocity(Entity ent, double x, double y, double z) {
-    if (ent.motionX != x || ent.motionY != y || ent.motionZ != z) {
-      ent.motionX = x;
-      ent.motionY = y;
-      ent.motionZ = z;
-      ent.velocityChanged = true;
-    }
-  }
-
-  @SideOnly(Side.CLIENT)
-  public void setModel() {
-    if (Config.ENABLE_3D) {
-      Models.setItemModel(this, "placeholder");
-      this.setTileEntityItemStackRenderer(new Render());
-    } else {
-      Models.setItemModel(this, "bash");
-    }
-  }
-
-  @SideOnly(Side.CLIENT)
-  public void loadModel() {
-    if (Config.ENABLE_3D) {
-      MODEL = Models.loadItemModel("item/3d/bash.obj");
-      MODEL_OVERLAY = Models.loadItemModel("item/3d/bash_overlay.obj");
+      Util.setVelocity(owner, vec.x, vec.y, vec.z, true);
+      Util.setVelocity(ent, -vec.x, -vec.y, -vec.z, true);
+      owner.world.playSound(null, owner.getX(), owner.getY(), owner.getZ(), Sounds.BASH_END, SoundCategory.PLAYERS, 1, 1);
     }
   }
 }

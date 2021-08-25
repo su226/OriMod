@@ -1,202 +1,143 @@
 package su226.orimod.items;
 
-import java.util.List;
-
-import net.minecraft.client.renderer.GlStateManager;
-import net.minecraft.client.renderer.OpenGlHelper;
-import net.minecraft.client.renderer.block.model.BakedQuad;
-import net.minecraft.client.renderer.block.model.ItemCameraTransforms.TransformType;
-import net.minecraft.client.renderer.tileentity.TileEntityItemStackRenderer;
+import com.mojang.blaze3d.platform.GlStateManager;
+import net.fabricmc.fabric.api.object.builder.v1.client.model.FabricModelPredicateProviderRegistry;
+import net.minecraft.client.render.*;
+import net.minecraft.client.render.model.BakedModel;
+import net.minecraft.client.render.model.json.ModelTransformation;
+import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.enchantment.EnchantmentHelper;
-import net.minecraft.entity.EntityLivingBase;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.init.Enchantments;
-import net.minecraft.item.EnumAction;
-import net.minecraft.item.IItemPropertyGetter;
-import net.minecraft.item.ItemBow;
+import net.minecraft.enchantment.Enchantments;
+import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.item.BowItem;
 import net.minecraft.item.ItemStack;
-import net.minecraft.stats.StatList;
-import net.minecraft.util.ActionResult;
-import net.minecraft.util.EnumActionResult;
-import net.minecraft.util.EnumHand;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.sound.SoundCategory;
+import net.minecraft.stat.Stats;
+import net.minecraft.util.Hand;
+import net.minecraft.util.Identifier;
+import net.minecraft.util.TypedActionResult;
+import net.minecraft.util.math.Quaternion;
 import net.minecraft.world.World;
-import net.minecraftforge.event.ForgeEventFactory;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
-import su226.orimod.Config;
+import su226.orimod.Mod;
 import su226.orimod.blocks.SpiritSmithingTable;
-import su226.orimod.capabilities.Capabilities;
-import su226.orimod.capabilities.IChargeable;
+import su226.orimod.components.Components;
+import su226.orimod.components.IChargeable;
 import su226.orimod.entities.Arrow;
-import su226.orimod.messages.SoundMessage;
-import su226.orimod.others.Models;
+import su226.orimod.others.ICustomRender;
+import su226.orimod.others.Render;
 import su226.orimod.others.Sounds;
-import su226.orimod.others.Util;
 
-public class SpiritArc extends ItemBow {
-  private static class Render extends TileEntityItemStackRenderer {
-    @Override
-    public void renderByItem(ItemStack stack, float partialTicks) {
-      boolean shouldRotate = Models.transform == TransformType.THIRD_PERSON_LEFT_HAND || Models.transform == TransformType.THIRD_PERSON_RIGHT_HAND || Models.transform == TransformType.FIRST_PERSON_LEFT_HAND || Models.transform == TransformType.FIRST_PERSON_RIGHT_HAND;
-      if (shouldRotate) {
-        GlStateManager.pushMatrix();
-        GlStateManager.rotate(90, 0, 1, 0);
-        GlStateManager.translate(-1, 0, 0);
-      }
-      GlStateManager.disableLighting();
-      GlStateManager.enableCull();
-      OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, 240, 240);
-      IChargeable cap = stack.getCapability(Capabilities.CHARGEABLE, null);
-      double charge = cap == null ? 0 : cap.getCharge();
-      double x = 0.45 * (1 - charge);
-      GlStateManager.pushMatrix();
-      GlStateManager.scale(1 + 0.5 * charge, 1, 1);
-      Models.renderItemModel(MODEL);
-      if (charge == 0) {
-        Models.drawGlowingLine(0.45, 0.9, 0.5, 0.45, 0.1, 0.5, Config.GLOW_COLOR);
-      } else {
-        Models.drawGlowingLine(0.45, 0.9, 0.5, x, 0.5, 0.5, Config.GLOW_COLOR);
-        Models.drawGlowingLine(0.45, 0.1, 0.5, x, 0.5, 0.5, Config.GLOW_COLOR);
-      }
-      Models.renderItemModel(MODEL_OVERLAY, Config.GLOW_COLOR);
-      GlStateManager.popMatrix();
-      if (charge != 0) {
-        GlStateManager.pushMatrix();
-        GlStateManager.translate(x + 0.5, 0.5, 0.5);
-        Models.renderItemModel(Arrow.Render.MODEL, 0xffffffff);
-        Models.renderItemModel(Arrow.Render.MODEL_OVERLAY, Config.GLOW_COLOR);
-        GlStateManager.popMatrix();
-      }
-      GlStateManager.enableLighting();
-      if (shouldRotate) {
-        GlStateManager.popMatrix();
-      }
-    }
-  }
-
+public class SpiritArc extends BowItem implements ICustomRender {
   private static final int MAX_TIME = 72000;
 
-  private static List<BakedQuad> MODEL;
-  private static List<BakedQuad> MODEL_OVERLAY;
+  private static final String MODEL = "item/3d/spirit_arc";
+  private static final String MODEL_OVERLAY = "item/3d/spirit_arc_overlay";
 
   public SpiritArc() {
-    super();
-    this.setRegistryName(Util.getLocation("spirit_arc"));
-    this.setUnlocalizedName(Util.getI18nKey("spirit_arc"));
-    this.setCreativeTab(Items.CREATIVE_TAB);
-    this.setMaxStackSize(1);
-    this.addPropertyOverride(new ResourceLocation("charge"), new IItemPropertyGetter() {
-      @Override
-      public float apply(ItemStack stack, World world, EntityLivingBase owner) {
-        IChargeable cap = stack.getCapability(Capabilities.CHARGEABLE, null);
-        return cap == null ? 0 : cap.getCharge();
-      }
-    });
+    super(new Settings().group(Items.GROUP).maxDamage(0));
     SpiritSmithingTable.registerRecipe(new SpiritSmithingTable.Recipe(
-      new ItemStack(net.minecraft.init.Items.BOW),
+      new ItemStack(net.minecraft.item.Items.BOW),
       new ItemStack(this),
       300
     ));
   }
 
-  @SideOnly(Side.CLIENT)
-  public void setModel() {
-    if (Config.ENABLE_3D) {
-      Models.setItemModel(this, "placeholder");
-      this.setTileEntityItemStackRenderer(new Render());
+  public void registerModelPredicate() {
+    FabricModelPredicateProviderRegistry.register(this, new Identifier("charge"), (stack, world, owner) -> Components.CHARGEABLE.get(stack).getCharge());
+  }
+
+  @Override
+  public TypedActionResult<ItemStack> use(World world, PlayerEntity user, Hand hand) {
+    ItemStack stack = user.getStackInHand(hand);
+    if (world.isClient) {
+      IChargeable component = Components.CHARGEABLE.get(stack);
+      component.beginCharge(Mod.CONFIG.spirit_arc.charge_duration);
     } else {
-      Models.setItemModel(this, "spirit_arc");
+      world.playSound(null, user.getX(), user.getY(), user.getZ(), Sounds.SPIRIT_ARC_DRAW, SoundCategory.PLAYERS, 1, 1);
     }
+    user.setCurrentHand(hand);
+    return TypedActionResult.success(stack);
   }
 
   @Override
-  public EnumAction getItemUseAction(ItemStack stack) {
-    return EnumAction.BOW;
-  }
-
-  @SideOnly(Side.CLIENT)
-  public void loadModel() {
-    MODEL = Models.loadItemModel("item/3d/spirit_arc.obj");
-    MODEL_OVERLAY = Models.loadItemModel("item/3d/spirit_arc_overlay.obj");
-  }
-
-  @Override
-  public int getMaxItemUseDuration(ItemStack stack) {
-    return MAX_TIME;
-  }
-
-  public ActionResult<ItemStack> onItemRightClick(World world, EntityPlayer owner, EnumHand hand) {
-    ItemStack stack = owner.getHeldItem(hand);
-    if (world.isRemote) {
-      IChargeable cap = stack.getCapability(Capabilities.CHARGEABLE, null);
-      cap.setDuration(Config.SPIRIT_ARC.CHARGE_DURATION);
-      cap.beginCharge();
-    } else {
-      SoundMessage.play(owner, Sounds.SPIRIT_ARC_DRAW);
+  public void onStoppedUsing(ItemStack stack, World world, LivingEntity user, int remainingUseTicks) {
+    if (world.isClient) {
+      Components.CHARGEABLE.get(stack).endCharge();
     }
-    owner.setActiveHand(hand);
-    return new ActionResult<>(EnumActionResult.SUCCESS, stack);
+    this.shoot(stack, world, user, remainingUseTicks);
   }
 
   @Override
-  public void onPlayerStoppedUsing(ItemStack stack, World world, EntityLivingBase owner, int timeLeft) {
-    if (world.isRemote) {
-      stack.getCapability(Capabilities.CHARGEABLE, null).endCharge();
-    }
-    this.shoot(stack, world, owner, timeLeft);
-  }
-
-  @Override
-  public int getMaxDamage(ItemStack stack) {
-    return 0;
-  }
-
-  @Override
-  public int getItemEnchantability() {
-    return Config.TOOLS.ENCHANTABILITY;
+  public int getEnchantability() {
+    return Mod.CONFIG.tools.enchantability;
   }
 
   public float getVelocity(int tick) {
-    float f = tick / Config.SPIRIT_ARC.CHARGE_DURATION;
-    return Math.min(f * f, 1);
+    float f = 1f * tick / Mod.CONFIG.spirit_arc.charge_duration;
+    return Math.min((f * f + f * 2) / 3 * Mod.CONFIG.spirit_arc.velocity_multiplier, Mod.CONFIG.spirit_arc.velocity_multiplier);
   }
 
-  public void shoot(ItemStack stack, World world, EntityLivingBase owner, int timeLeft) {
-    if (!(owner instanceof EntityPlayer)) {
+  public void shoot(ItemStack stack, World world, LivingEntity owner, int timeLeft) {
+    if (!(owner instanceof PlayerEntity player)) {
       return;
     }
-    EntityPlayer player = (EntityPlayer)owner;
-    int ticks = this.getMaxItemUseDuration(stack) - timeLeft;
-    ticks = ForgeEventFactory.onArrowLoose(stack, world, player, ticks, true);
-    if (ticks < 0) {
+    int i = this.getMaxUseTime(stack) - timeLeft;
+    float f = getVelocity(i);
+    if (f < 0.1f * Mod.CONFIG.spirit_arc.velocity_multiplier) {
       return;
     }
-    float f = getVelocity(ticks);
-    if (f < 0.1f) {
-      return;
+    if (!world.isClient) {
+      Arrow arrow = new Arrow(world, player);
+      arrow.setProperties(player, player.pitch, player.yaw, 0.0F, f, 1.0F);
+      if (f == 1.0F) {
+        arrow.setCritical(true);
+      }
+      int power = EnchantmentHelper.getLevel(Enchantments.POWER, stack);
+      if (power > 0) {
+        arrow.setDamage(arrow.getDamage() + power * 0.5 + 0.5);
+      }
+      int punch = EnchantmentHelper.getLevel(Enchantments.PUNCH, stack);
+      if (punch > 0) {
+        arrow.setPunch(Mod.CONFIG.spirit_arc.knockback + punch);
+      }
+      if (EnchantmentHelper.getLevel(Enchantments.FLAME, stack) > 0) {
+        arrow.setOnFireFor(100);
+      }
+      world.spawnEntity(arrow);
+      world.playSound(null, player.getX(), player.getY(), player.getZ(), Sounds.SPIRIT_ARC_SHOOT, SoundCategory.PLAYERS, 1, 1);
     }
-    player.addStat(StatList.getObjectUseStats(this));
-    if (world.isRemote) {
-      return;
+    player.incrementStat(Stats.USED.getOrCreateStat(this));
+  }
+
+  @Override
+  public void render(ItemStack stack, ModelTransformation.Mode mode, boolean left, MatrixStack mat, VertexConsumerProvider consumers, int light, int overlay, BakedModel model) {
+    boolean shouldRotate = mode == ModelTransformation.Mode.THIRD_PERSON_LEFT_HAND || mode == ModelTransformation.Mode.THIRD_PERSON_RIGHT_HAND || mode == ModelTransformation.Mode.FIRST_PERSON_LEFT_HAND || mode == ModelTransformation.Mode.FIRST_PERSON_RIGHT_HAND;
+    if (shouldRotate) {
+      mat.multiply(new Quaternion(0, 90, 0, true));
+      mat.translate(-1, 0, 0);
     }
-    SoundMessage.play(player, Sounds.SPIRIT_ARC_SHOOT);
-    Arrow arrow = new Arrow(world, owner);
-    if (f == 1.0F) {
-      arrow.setIsCritical(true);
+    float charge = Components.CHARGEABLE.get(stack).getCharge();
+    float x = 0.45f * (1 - charge);
+    mat.push();
+    mat.scale(1 + 0.5f * charge, 1, 1);
+    VertexConsumer consumer = consumers.getBuffer(RenderLayer.getTranslucent());
+    Render.model(mat, consumer, MODEL, 0xffffffff, 0, Render.FULL_BRIGHT);
+    Render.model(mat, consumer, MODEL_OVERLAY, Mod.CONFIG.glow_color, 0, Render.FULL_BRIGHT);
+    if (charge == 0) {
+      Render.glowingLine(mat, consumer, 0.45f, 0.9f, 0.5f, 0.45f, 0.1f, 0.5f, Mod.CONFIG.glow_color);
+    } else {
+      Render.glowingLine(mat, consumer, 0.45f, 0.9f, 0.5f, x, 0.5f, 0.5f, Mod.CONFIG.glow_color);
+      Render.glowingLine(mat, consumer, 0.45f, 0.1f, 0.5f, x, 0.5f, 0.5f, Mod.CONFIG.glow_color);
     }
-    arrow.shoot(player, player.rotationPitch, player.rotationYaw, 0, f * (float)Config.SPIRIT_ARC.VELOCITY_MULTIPLIER, 1);
-    int power = EnchantmentHelper.getEnchantmentLevel(Enchantments.POWER, stack);
-    if (power > 0) {
-      arrow.damage += power * 0.5 + 0.5;
+    mat.pop();
+    if (charge != 0) {
+      mat.translate(x + 0.5, 0.5, 0.5);
+      Render.model(mat, consumer, Arrow.Render.MODEL, 0xffffffff, 0, Render.FULL_BRIGHT);
+      Render.model(mat, consumer, Arrow.Render.MODEL_OVERLAY, Mod.CONFIG.glow_color, 0, Render.FULL_BRIGHT);
     }
-    int punch = EnchantmentHelper.getEnchantmentLevel(Enchantments.PUNCH, stack);
-    if (punch > 0) {
-      arrow.knockbackStrength += punch;
-    }
-    if (EnchantmentHelper.getEnchantmentLevel(Enchantments.FLAME, stack) > 0) {
-      arrow.setFire(100);
-    }
-    world.spawnEntity(arrow);
+    GlStateManager.disableDepthTest();
+    GlStateManager.enableTexture();
+    GlStateManager.disableBlend();
   }
 }

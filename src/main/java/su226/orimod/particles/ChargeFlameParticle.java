@@ -1,28 +1,26 @@
 package su226.orimod.particles;
 
-import net.minecraft.client.particle.Particle;
-import net.minecraft.client.renderer.texture.TextureAtlasSprite;
-import net.minecraft.client.renderer.texture.TextureMap;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.client.particle.ParticleTextureSheet;
+import net.minecraft.client.particle.SpriteBillboardParticle;
+import net.minecraft.client.world.ClientWorld;
+import net.minecraft.util.Identifier;
 import net.minecraft.util.math.Vec3d;
-import net.minecraft.world.World;
+import su226.orimod.ModClient;
 import su226.orimod.others.Util;
 
-public class ChargeFlameParticle extends Particle {
-  private static final ResourceLocation TEXTURE = Util.getLocation("particle/charge_flame");
-  private static TextureAtlasSprite ATLAS;
+public class ChargeFlameParticle extends SpriteBillboardParticle {
+  public static final Identifier TEXTURE = Util.getIdentifier("particle/charge_flame");
 
-  public ChargeFlameParticle(World world, Vec3d pos, Vec3d velocity) {
+  public ChargeFlameParticle(ClientWorld world, Vec3d pos, Vec3d velocity) {
     super(world, pos.x, pos.y, pos.z, velocity.x, velocity.y, velocity.z);
-    this.setParticleTexture(ATLAS);
+    this.setSprite(ModClient.PARTICLE_ATLAS.getSprite(TEXTURE));
+    this.velocityX = velocity.x * 0.1;
+    this.velocityY = velocity.y * 0.1;
+    this.velocityZ = velocity.z * 0.1;
   }
 
   @Override
-  public int getFXLayer() {
-    return 1;
-  }
-
-  public static void setTexture(TextureMap map) {
-    ATLAS = map.registerSprite(TEXTURE);
+  public ParticleTextureSheet getType() {
+    return ParticleTextureSheet.PARTICLE_SHEET_OPAQUE;
   }
 }

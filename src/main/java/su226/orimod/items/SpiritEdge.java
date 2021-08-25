@@ -1,65 +1,71 @@
 package su226.orimod.items;
 
-import java.util.List;
-
-import net.minecraft.client.renderer.GlStateManager;
-import net.minecraft.client.renderer.OpenGlHelper;
-import net.minecraft.client.renderer.block.model.BakedQuad;
-import net.minecraft.client.renderer.tileentity.TileEntityItemStackRenderer;
+import net.minecraft.client.render.*;
+import net.minecraft.client.render.model.BakedModel;
+import net.minecraft.client.render.model.json.ModelTransformation;
+import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.item.ItemStack;
-import net.minecraft.item.ItemSword;
-import net.minecraftforge.common.util.EnumHelper;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
-import su226.orimod.Config;
+import net.minecraft.item.SwordItem;
+import net.minecraft.item.ToolMaterial;
+import net.minecraft.recipe.Ingredient;
+import net.minecraft.util.math.Quaternion;
+import su226.orimod.Mod;
 import su226.orimod.blocks.SpiritSmithingTable;
-import su226.orimod.others.Models;
-import su226.orimod.others.Util;
+import su226.orimod.others.ICustomRender;
+import su226.orimod.others.Render;
 
-public class SpiritEdge extends ItemSword {
-  private static class Render extends TileEntityItemStackRenderer {
+public class SpiritEdge extends SwordItem implements ICustomRender {
+  public static final ToolMaterial MATERIAL = new ToolMaterial() {
     @Override
-    public void renderByItem(ItemStack stack, float unused) {
-      GlStateManager.disableLighting();
-      GlStateManager.enableCull();
-      OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, 240, 240);
-      Models.renderItemModel(MODEL);
-      Models.renderItemModel(MODEL_OVERLAY, Config.GLOW_COLOR);
-      GlStateManager.enableLighting();
+    public int getDurability() {
+      return 0;
     }
-  }
 
-  public static final ToolMaterial MATERIAL = EnumHelper.addToolMaterial("spirit", Config.TOOLS.HARVEST_LEVEL, 0, (float)Config.TOOLS.EFFICIENCY, (float)Config.TOOLS.DAMAGE, Config.TOOLS.ENCHANTABILITY);
-  private static List<BakedQuad> MODEL;
-  private static List<BakedQuad> MODEL_OVERLAY;
+    @Override
+    public float getMiningSpeedMultiplier() {
+      return Mod.CONFIG.tools.efficiency;
+    }
+
+    @Override
+    public float getAttackDamage() {
+      return Mod.CONFIG.tools.damage;
+    }
+
+    @Override
+    public int getMiningLevel() {
+      return Mod.CONFIG.tools.harvest_level;
+    }
+
+    @Override
+    public int getEnchantability() {
+      return Mod.CONFIG.tools.enchantability;
+    }
+
+    @Override
+    public Ingredient getRepairIngredient() {
+      return null;
+    }
+  };
+  private static final String MODEL = "item/3d/spirit_edge";
+  private static final String MODEL_OVERLAY = "item/3d/spirit_edge_overlay";
 
   public SpiritEdge() {
-    super(MATERIAL);
-    this.setRegistryName(Util.getLocation("spirit_edge"));
-    this.setUnlocalizedName(Util.getI18nKey("spirit_edge"));
-    this.setCreativeTab(Items.CREATIVE_TAB);
+    super(MATERIAL, 3, -2.4f, new Settings().group(Items.GROUP));
     SpiritSmithingTable.registerRecipe(new SpiritSmithingTable.Recipe(
-      new ItemStack(net.minecraft.init.Items.DIAMOND_SWORD),
+      new ItemStack(net.minecraft.item.Items.DIAMOND_SWORD),
       new ItemStack(this),
       300
     ));
   }
 
-  @SideOnly(Side.CLIENT)
-  public void setModel() {
-    if (Config.ENABLE_3D) {
-      Models.setItemModel(this, "placeholder");
-      this.setTileEntityItemStackRenderer(new Render());
-    } else {
-      Models.setItemModel(this, "spirit_edge");
+  @Override
+  public void render(ItemStack stack, ModelTransformation.Mode mode, boolean left, MatrixStack mat, VertexConsumerProvider consumers, int light, int overlay, BakedModel model) {
+    if (mode == ModelTransformation.Mode.THIRD_PERSON_LEFT_HAND || mode == ModelTransformation.Mode.THIRD_PERSON_RIGHT_HAND) {
+      mat.multiply(new Quaternion(0, -90, 0, true));
+      mat.translate(0, 0, -1);
     }
-  }
-
-  @SideOnly(Side.CLIENT)
-  public void loadModel() {
-    if (Config.ENABLE_3D) {
-      MODEL = Models.loadItemModel("item/3d/spirit_edge.obj");
-      MODEL_OVERLAY = Models.loadItemModel("item/3d/spirit_edge_overlay.obj");
-    }
+    VertexConsumer consumer = consumers.getBuffer(RenderLayer.getTranslucent());
+    Render.model(mat, consumer, MODEL, 0xffffffff, 0, 15728880);
+    Render.model(mat, consumer, MODEL_OVERLAY, Mod.CONFIG.glow_color, 0, 15728880);
   }
 }

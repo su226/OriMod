@@ -1,6 +1,6 @@
 {
   "parent": "item/handheld",
   "textures": {
-    "layer0": "orimod:items/bash"
+    "layer0": "orimod:item/bash"
   }
 }

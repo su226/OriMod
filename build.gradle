@@ -1,82 +1,60 @@
-buildscript {
-  repositories {
-    jcenter()
-    maven { url = "https://files.minecraftforge.net/maven" }
-    maven { url = "https://repo.spongepowered.org/maven" } // MixinGradle
-  }
-  dependencies {
-    classpath 'net.minecraftforge.gradle:ForgeGradle:2.3-SNAPSHOT'
-    classpath 'org.spongepowered:mixingradle:0.6-SNAPSHOT'
-  }
+plugins {
+  id 'fabric-loom' version '0.8-SNAPSHOT'
+  id 'maven-publish'
 }
-apply plugin: 'net.minecraftforge.gradle.forge'
-apply plugin: 'org.spongepowered.mixin'
 
-version = mod_version
-group = "su226.orimod"
-archivesBaseName = "orimod"
+sourceCompatibility = JavaVersion.VERSION_16
+targetCompatibility = JavaVersion.VERSION_16
 
-sourceCompatibility = targetCompatibility = compileJava.sourceCompatibility = compileJava.targetCompatibility = '1.8'
-
-minecraft {
-  version = "1.12.2-14.23.5.2847"
-  runDir = "run"
-  mappings = "snapshot_20171003"
-  String myJvmArgs = "-Dfml.coreMods.load=su226.orimod.CoreMod"
-  String myRunArgs = "--mixin mixins.orimod.json"
-  clientJvmArgs += myJvmArgs
-  serverJvmArgs += myJvmArgs
-  clientRunArgs += myRunArgs
-  serverRunArgs += myRunArgs
-}
+archivesBaseName = project.archives_base_name
+version = project.mod_version
+group = project.maven_group
 
 repositories {
-  maven { url = "https://maven.thiakil.com" } // Baubles
-  maven { url = 'https://repo.spongepowered.org/maven' } // Mixin
-  maven { url = "https://dvs1.progwml6.com/files/maven/" } // JEI
+  maven { url = "https://hephaestus.dev/release" } // Myron
+  maven { url = "https://maven.shedaniel.me" } // Cloth Config, REI
+  maven { url = "https://maven.terraformersmc.com" } // Mod Menu, Trinkets
+  maven { url = "https://ladysnake.jfrog.io/artifactory/mods" } // Cardinal Components, Trinkets
 }
 
 dependencies {
-  deobfCompile "com.azanor.baubles:Baubles:1.12-1.5.2"
-  compile "org.spongepowered:mixin:0.8.3-SNAPSHOT"
-  deobfProvided "mezz.jei:jei_1.12.2:4.16.1.302:api"
-  runtime "mezz.jei:jei_1.12.2:4.16.1.302"
-}
-
-jar {
-  from {configurations.compile
-    .filter { "mixin-0.8.3-SNAPSHOT.jar" == it.name }
-    .collect { it.isDirectory() ? it : zipTree(it) }
-  } {
-    exclude "LICENSE.txt", "META-INF/MANIFSET.MF", "META-INF/maven/**", "META-INF/*.RSA", "META-INF/*.SF"
-  }
-
-  manifest {
-    attributes "FMLCorePlugin": "su226.orimod.CoreMod"
-    attributes "FMLCorePluginContainsFMLMod": "true"
-    attributes "ForceLoadAsMod": "true"
-    attributes "TweakClass": "org.spongepowered.asm.launch.MixinTweaker"
-    attributes "TweakOrder": "0"
-    attributes "MixinConfigs": "mixins.orimod.json"
-  }
+  minecraft "com.mojang:minecraft:${project.minecraft_version}"
+  mappings "net.fabricmc:yarn:${project.yarn_mappings}:v2"
+  modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
+  modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
+  modImplementation "com.terraformersmc:modmenu:${project.mod_menu_version}"
+  modImplementation "dev.emi:trinkets:${project.trinkets_version}"
+  modApi "me.shedaniel.cloth:cloth-config-fabric:${project.cloth_config_version}"
+  modApi "me.shedaniel:RoughlyEnoughItems:${project.rei_version}" // Use modCompileOnly and modRuntime will crash :|
+  modImplementation "dev.monarkhes:myron:${project.myron_version}"
+  include "dev.monarkhes:myron:${project.myron_version}"
+  modImplementation "io.github.onyxstudios.Cardinal-Components-API:cardinal-components-base:${project.cardinal_components_version}"
+  include "io.github.onyxstudios.Cardinal-Components-API:cardinal-components-base:${project.cardinal_components_version}"
+  modImplementation "io.github.onyxstudios.Cardinal-Components-API:cardinal-components-entity:${project.cardinal_components_version}"
+  include "io.github.onyxstudios.Cardinal-Components-API:cardinal-components-entity:${project.cardinal_components_version}"
+  modImplementation "io.github.onyxstudios.Cardinal-Components-API:cardinal-components-item:${project.cardinal_components_version}"
+  include "io.github.onyxstudios.Cardinal-Components-API:cardinal-components-item:${project.cardinal_components_version}"
 }
 
 processResources {
   inputs.property "version", project.version
-  inputs.property "mcversion", project.minecraft.version
 
-  from(sourceSets.main.resources.srcDirs) {
-    include 'mcmod.info'
-    expand 'version':project.version, 'mcversion':project.minecraft.version
-  }
-
-  from(sourceSets.main.resources.srcDirs) {
-    exclude 'mcmod.info'
+  filesMatching("fabric.mod.json") {
+    expand "version": project.version
   }
 }
 
-// For some dirty VSCode debug hacks
-task writeClasspath << {
-  buildDir.mkdirs()
-  new File(buildDir, "classpath.txt").text = sourceSets.main.runtimeClasspath.collect { it.absolutePath }.join(':')
+tasks.withType(JavaCompile).configureEach {
+  it.options.encoding = "UTF-8"
+  it.options.release = 16
+}
+
+java {
+  withSourcesJar()
+}
+
+jar {
+  from("LICENSE") {
+    rename { "${it}_${project.archivesBaseName}"}
+  }
 }

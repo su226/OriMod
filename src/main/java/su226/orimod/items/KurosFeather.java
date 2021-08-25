@@ -2,213 +2,184 @@ package su226.orimod.items;
 
 import java.lang.reflect.Field;
 import java.util.List;
-import java.util.function.BiPredicate;
 
-import net.minecraft.client.model.ModelPlayer;
-import net.minecraft.client.renderer.GlStateManager;
-import net.minecraft.client.renderer.block.model.BakedQuad;
-import net.minecraft.client.renderer.entity.RenderLivingBase;
-import net.minecraft.client.renderer.entity.RenderPlayer;
-import net.minecraft.client.renderer.entity.layers.LayerHeldItem;
-import net.minecraft.client.renderer.entity.layers.LayerRenderer;
-import net.minecraft.client.renderer.texture.TextureMap;
+import dev.emi.trinkets.api.TrinketsApi;
+import net.minecraft.client.network.AbstractClientPlayerEntity;
+import net.minecraft.client.render.*;
+import net.minecraft.client.render.entity.LivingEntityRenderer;
+import net.minecraft.client.render.entity.PlayerEntityRenderer;
+import net.minecraft.client.render.entity.feature.FeatureRenderer;
+import net.minecraft.client.render.entity.feature.FeatureRendererContext;
+import net.minecraft.client.render.entity.feature.HeldItemFeatureRenderer;
+import net.minecraft.client.render.entity.model.PlayerEntityModel;
+import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityLivingBase;
-import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.damage.DamageSource;
+import net.minecraft.entity.player.ItemCooldownManager;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.ActionResult;
-import net.minecraft.util.CooldownTracker;
-import net.minecraft.util.EnumActionResult;
-import net.minecraft.util.EnumHand;
+import net.minecraft.sound.SoundCategory;
+import net.minecraft.util.Hand;
+import net.minecraft.util.TypedActionResult;
+import net.minecraft.util.math.Quaternion;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
-import net.minecraftforge.client.event.RenderPlayerEvent;
-import net.minecraftforge.event.entity.living.LivingAttackEvent;
-import net.minecraftforge.fml.common.ObfuscationReflectionHelper;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
-import su226.orimod.Config;
 import su226.orimod.Mod;
 import su226.orimod.blocks.SpiritSmithingTable;
-import su226.orimod.capabilities.Capabilities;
-import su226.orimod.capabilities.IEquipper;
-import su226.orimod.capabilities.IKurosFeather;
-import su226.orimod.capabilities.IEquipper.IEquipable;
-import su226.orimod.messages.FlapMessage;
-import su226.orimod.messages.SoundMessage;
-import su226.orimod.others.Models;
+import su226.orimod.components.Components;
+import su226.orimod.components.IKurosFeather;
+import su226.orimod.others.Render;
 import su226.orimod.others.Sounds;
 import su226.orimod.others.Util;
+import su226.orimod.packets.FlapPacket;
 
-public class KurosFeather extends Item implements IEquipable {
-  static class Layer implements LayerRenderer<EntityLivingBase> {
-    public LayerRenderer<EntityLivingBase> prev;
-  
-    public Layer(LayerRenderer<EntityLivingBase> prev) {
+public class KurosFeather extends Item {
+  static class Feature extends FeatureRenderer<AbstractClientPlayerEntity, PlayerEntityModel<AbstractClientPlayerEntity>> {
+    public final FeatureRenderer<AbstractClientPlayerEntity, PlayerEntityModel<AbstractClientPlayerEntity>> prev;
+
+    public Feature(FeatureRenderer<AbstractClientPlayerEntity, PlayerEntityModel<AbstractClientPlayerEntity>> prev) {
+      super(getContext(prev));
       this.prev = prev;
     }
-    
-    @Override
-    public void doRenderLayer(EntityLivingBase owner, float swing, float swingAmount, float partialTicks, float age, float yaw, float pitch, float scale) {
-      GlStateManager.pushMatrix();
-      GlStateManager.disableCull();
-      GlStateManager.rotate(180, 0, 0, 1);
-      GlStateManager.translate(0, 0.25, 0);
-      Models.renderItemModel(MODEL);
-      GlStateManager.enableCull();
-      GlStateManager.popMatrix();
+
+    @SuppressWarnings("unchecked")
+    private static FeatureRendererContext<AbstractClientPlayerEntity, PlayerEntityModel<AbstractClientPlayerEntity>> getContext(FeatureRenderer<AbstractClientPlayerEntity, PlayerEntityModel<AbstractClientPlayerEntity>> prev) {
+      try {
+        Field field = Util.getFleid(FeatureRenderer.class, "context", "field_17155");
+        field.setAccessible(true);
+        return (FeatureRendererContext<AbstractClientPlayerEntity, PlayerEntityModel<AbstractClientPlayerEntity>>)field.get(prev);
+      } catch (Exception e) {
+        Mod.LOG.error("Failed to get FeatureRendererContext!", e);
+        return null;
+      }
     }
 
     @Override
-    public boolean shouldCombineTextures() {
-      return false;
+    public void render(MatrixStack mat, VertexConsumerProvider consumers, int light, AbstractClientPlayerEntity entity, float limbAngle, float limbDistance, float tickDelta, float animationProgress, float headYaw, float headPitch) {
+      VertexConsumer consumer = consumers.getBuffer(RenderLayer.getCutout());
+      mat.multiply(new Quaternion(180, 0, 0, true));
+      mat.translate(0, 0.5, 0);
+      Render.model(mat, consumer, MODEL, 0xffffffff, 0, light);
     }
   }
 
   private static final float ANGLE = (float)Math.PI * 0.9f;
-  private static List<BakedQuad> MODEL;
+  private static final String MODEL = "misc/kuros_feather";
 
   public KurosFeather() {
-    super();
-    this.setRegistryName(Util.getLocation("kuros_feather"));
-    this.setUnlocalizedName(Util.getI18nKey("kuros_feather"));
-    this.setCreativeTab(Items.CREATIVE_TAB);
-    this.setMaxStackSize(1);
+    super(new Settings().maxCount(1).group(Items.GROUP));
     SpiritSmithingTable.registerRecipe(new SpiritSmithingTable.Recipe(
-      new ItemStack(net.minecraft.init.Items.FEATHER),
+      new ItemStack(net.minecraft.item.Items.FEATHER),
       new ItemStack(this),
       300
     ));
   }
 
-  public void setRotationAngles(ModelPlayer model, EntityPlayer owner) {
-    if (owner.getCapability(Capabilities.KUROS_FEATHER, null).isPrevGliding() && !model.bipedBody.isHidden) {
-      model.bipedBody.rotateAngleX = 0.0F;
-      model.bipedRightLeg.rotationPointZ = 0.1F;
-      model.bipedLeftLeg.rotationPointZ = 0.1F;
-      model.bipedRightLeg.rotationPointY = 12.0F;
-      model.bipedLeftLeg.rotationPointY = 12.0F;
-      model.bipedHead.rotationPointY = 0.0F;
-      model.bipedRightLeg.rotateAngleX = 0;
-      model.bipedLeftLeg.rotateAngleX = 0;
-      model.bipedLeftArmwear.rotateAngleX = model.bipedLeftArm.rotateAngleX = 0;
-      model.bipedLeftArmwear.rotateAngleY = model.bipedLeftArm.rotateAngleY = 0;
-      model.bipedLeftArmwear.rotateAngleZ = model.bipedLeftArm.rotateAngleZ = -ANGLE;
-      model.bipedRightArmwear.rotateAngleX = model.bipedRightArm.rotateAngleX = 0;
-      model.bipedRightArmwear.rotateAngleY = model.bipedRightArm.rotateAngleY = 0;
-      model.bipedRightArmwear.rotateAngleZ = model.bipedRightArm.rotateAngleZ = ANGLE;
-      model.isSneak = false;
+  public void setModelAngles(AbstractClientPlayerEntity owner, PlayerEntityModel<AbstractClientPlayerEntity> model) {
+    if (Components.KUROS_FEATHER.get(owner).isPrevGliding() && model.body.visible) {
+      model.jacket.pitch = model.body.pitch = 0.0F;
+      model.rightPants.pivotZ =  model.rightLeg.pivotZ = 0.1F;
+      model.leftPants.pivotZ =  model.leftLeg.pivotZ = 0.1F;
+      model.rightPants.pivotY =  model.rightLeg.pivotY = 12.0F;
+      model.leftPants.pivotY =  model.leftLeg.pivotY = 12.0F;
+      model.hat.pivotY = model.head.pivotY = 0.0F;
+      model.jacket.pivotY = model.body.pivotY = 0.0F;
+      model.leftSleeve.pivotY = model.leftArm.pivotY = 2.0F;
+      model.rightSleeve.pivotY = model.rightArm.pivotY = 2.0F;
+      model.rightPants.pitch = model.rightLeg.pitch = 0;
+      model.leftPants.pitch = model.leftLeg.pitch = 0;
+      model.leftSleeve.yaw = model.leftArm.yaw = 0;
+      model.leftSleeve.pitch = model.leftArm.pitch = 0;
+      model.leftSleeve.roll = model.leftArm.roll = -ANGLE;
+      model.rightSleeve.yaw = model.rightArm.yaw = 0;
+      model.rightSleeve.pitch = model.rightArm.pitch = 0;
+      model.rightSleeve.roll = model.rightArm.roll = ANGLE;
     }
   }
 
-  public void livingAttack(LivingAttackEvent event) {
-    IEquipper cap = event.getEntity().getCapability(Capabilities.EQUIPPER, null);
-    if (cap != null && cap.isEquipped(this) && event.getSource().damageType.equals("fall")) {
-      event.setCanceled(true);
-    } 
-  }
-
-  @Override
-  public void onUpdate(ItemStack stack, World world, Entity owner, int slot, boolean held) {
-    this.updateEquipable(stack, owner);
+  public boolean onDamage(PlayerEntity player, DamageSource source) {
+    return source.name.equals("fall") && TrinketsApi.getTrinketsInventory(player).count(this) != 0;
   }
 
   @SuppressWarnings("unchecked")
-  public void renderPlayerPre(RenderPlayerEvent.Pre event) {
-    EntityPlayer owner = event.getEntityPlayer();
-    RenderPlayer render = event.getRenderer();
-    IKurosFeather cap = owner.getCapability(Capabilities.KUROS_FEATHER, null);
-    if (cap.shouldUpdate()) {
-      boolean gliding = cap.isPrevGliding();
+  public void renderPlayerPre(AbstractClientPlayerEntity owner, PlayerEntityRenderer render) {
+    IKurosFeather component = Components.KUROS_FEATHER.get(owner);
+    if (component.shouldUpdate()) {
+      boolean gliding = component.isPrevGliding();
       try {
-        Field field = ObfuscationReflectionHelper.findField(RenderLivingBase.class, "field_177097_h"); // layerRenderers
+        Field field = Util.getFleid(LivingEntityRenderer.class, "features", "field_4738");
         field.setAccessible(true);
-        List<LayerRenderer<EntityLivingBase>> layerRenderers = (List<LayerRenderer<EntityLivingBase>>)field.get(render);
-        for (int i = 0; i < layerRenderers.size(); i++) {
-          LayerRenderer<EntityLivingBase> layer = layerRenderers.get(i);
-          if (gliding && layer instanceof LayerHeldItem) {
-            layerRenderers.set(i, new Layer(layer));
-          } else if (!gliding && layer instanceof Layer) {
-            layerRenderers.set(i, ((Layer)layer).prev);
+        List<FeatureRenderer<AbstractClientPlayerEntity, PlayerEntityModel<AbstractClientPlayerEntity>>> features = (List<FeatureRenderer<AbstractClientPlayerEntity, PlayerEntityModel<AbstractClientPlayerEntity>>>)field.get(render);
+        for (int i = 0; i < features.size(); i++) {
+          FeatureRenderer<AbstractClientPlayerEntity, PlayerEntityModel<AbstractClientPlayerEntity>> layer = features.get(i);
+          if (gliding && layer instanceof HeldItemFeatureRenderer) {
+            features.set(i, new Feature(layer));
+          } else if (!gliding && layer instanceof Feature) {
+            features.set(i, ((Feature)layer).prev);
           }
         }
       } catch (Exception e) {
         Mod.LOG.warn("Failed to override player render!", e);
       }
-      cap.setShouldUpdate(false);
+      component.setShouldUpdate(false);
     }
   }
 
   @Override
-  public BiPredicate<ItemStack, EntityPlayer> getEquipableSlots() {
-    return IEquipable.ANY_HAND;
-  }
-
-  @Override
-  public void onEquipableUpdate(EntityPlayer owner, boolean isMaxPriority) {
-    boolean gliding = this.canGlide(owner);
-    IKurosFeather cap = owner.getCapability(Capabilities.KUROS_FEATHER, null);
-    if (cap.isPrevGliding() != gliding) {
-      if (!owner.world.isRemote) {
-        SoundMessage.play(owner, gliding ? Sounds.GLIDE_START : Sounds.GLIDE_END);
+  public void inventoryTick(ItemStack stack, World world, Entity entity, int slot, boolean selected) {
+    if (!(entity instanceof PlayerEntity player)) {
+      return;
+    }
+    IKurosFeather component = Components.KUROS_FEATHER.get(player);
+    if (!component.flagUpdated()) {
+      return;
+    }
+    boolean gliding = this.canGlide(player);
+    if (component.isPrevGliding() != gliding) {
+      if (!player.world.isClient) {
+        player.world.playSound(null, player.getX(), player.getY(), player.getZ(), gliding ? Sounds.GLIDE_START : Sounds.GLIDE_END, SoundCategory.PLAYERS, 1, 1);
       }
-      cap.setPrevGliding(gliding);
-      cap.setShouldUpdate(true);
+      component.setPrevGliding(gliding);
+      component.setShouldUpdate(true);
     }
     if (gliding) {
-      owner.moveRelative(0, 0, owner.moveForward, (float)Config.KUROS_FEATHER.SPEED_COMPENSATION);
-      if (owner.motionY < 0.0) {
-        owner.motionY *= Config.KUROS_FEATHER.FALL_MULTIPLIER;
+      double speed = player.forwardSpeed * Mod.CONFIG.kuros_feather.speed_compensation;
+      Vec3d velocity = player.getVelocity();
+      if (velocity.y < 0) {
+        velocity = velocity.multiply(1, Mod.CONFIG.kuros_feather.fall_multiplier, 1);
       }
+      if (speed != 0) {
+        double radian = Math.toRadians(player.yaw);
+        velocity = velocity.add(speed * -Math.sin(radian), 0, speed * Math.cos(radian));
+      }
+      Util.setVelocity(player, velocity.x, velocity.y, velocity.z, false);
     }
   }
 
-  @Override
-  public void onEquipableUnequip(EntityPlayer owner, boolean isMaxPriority) {
-    IKurosFeather cap = owner.getCapability(Capabilities.KUROS_FEATHER, null);
-    cap.setShouldUpdate(true);
-    cap.setPrevGliding(false);
-  }
-
-  public boolean canGlide(EntityPlayer owner) {
-    return owner.isSneaking() && Util.isAirBorne(owner) && !owner.isElytraFlying() && !owner.capabilities.isFlying;
+  public boolean canGlide(PlayerEntity owner) {
+    return owner.isSneaking() && Util.isAirBorne(owner) && !owner.isFallFlying() && !owner.abilities.flying;
   }
 
   @Override
-  public ActionResult<ItemStack> onItemRightClick(World world, EntityPlayer owner, EnumHand hand) {
-    CooldownTracker cd = owner.getCooldownTracker();
-    if (cd.getCooldown(this, 0) > 0) {
-      return new ActionResult<>(EnumActionResult.FAIL, owner.getHeldItem(hand));
+  public TypedActionResult<ItemStack> use(World world, PlayerEntity owner, Hand hand) {
+    ItemCooldownManager cd = owner.getItemCooldownManager();
+    if (cd.getCooldownProgress(this, 0) > 0) {
+      return TypedActionResult.fail(owner.getStackInHand(hand));
     }
-    cd.setCooldown(this, Config.KUROS_FEATHER.COOLDOWN);
-    if (!world.isRemote) {
-      Vec3d start = owner.getPositionEyes(1);
-      Vec3d end = start.add(owner.getLookVec().scale(Config.KUROS_FEATHER.LENGTH));
+    cd.set(this, Mod.CONFIG.kuros_feather.cooldown);
+    if (!world.isClient) {
+      Vec3d start = owner.getCameraPosVec(1);
+      Vec3d end = start.add(owner.getRotationVec(1).multiply(Mod.CONFIG.kuros_feather.length));
       double dist = end.distanceTo(start);
-      Vec3d velocity = end.subtract(start).scale(Config.KUROS_FEATHER.FORCE);
-      List<Entity> ents = Util.entityAroundLine(world, start, end, Config.KUROS_FEATHER.RANGE, owner);
+      Vec3d velocity = end.subtract(start).multiply(Mod.CONFIG.kuros_feather.force);
+      List<Entity> ents = Util.entityAroundLine(owner, start, end, Mod.CONFIG.kuros_feather.range);
       for (Entity ent : ents) {
-        double ratio = 1 - Math.min(ent.getDistance(start.x, start.y, start.z) / dist, 1);
+        double ratio = 1 - Math.min(Math.sqrt(ent.squaredDistanceTo(start.x, start.y, start.z)) / dist, 1);
         ent.addVelocity(velocity.x * ratio, velocity.y * ratio, velocity.z * ratio);
-        ent.velocityChanged = true;
       }
-      Mod.NETWORK.sendToAllAround(new FlapMessage(owner, end), Util.getTargetPoint(owner, 32));
+      new FlapPacket(owner, end).sendToAround(owner, 32);
     }
-    return new ActionResult<>(EnumActionResult.SUCCESS, owner.getHeldItem(hand));
-  }
-
-  @SideOnly(Side.CLIENT)
-  public void setModel() {
-    Models.setItemModel(this, "kuros_feather");
-  }
-
-  @SideOnly(Side.CLIENT)
-  public void loadModel() {
-    MODEL = Models.loadItemModel("entity/kuros_feather.obj");
-  }
-
-  public void setTexture(TextureMap map) {
-    map.registerSprite(Util.getLocation("entity/kuros_feather"));
+    return TypedActionResult.success(owner.getStackInHand(hand));
   }
 }

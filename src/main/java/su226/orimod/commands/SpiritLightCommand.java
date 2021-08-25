@@ -1,60 +1,87 @@
 package su226.orimod.commands;
 
-import java.util.List;
+import com.mojang.brigadier.CommandDispatcher;
+import com.mojang.brigadier.arguments.IntegerArgumentType;
+import com.mojang.brigadier.builder.ArgumentBuilder;
+import com.mojang.brigadier.builder.LiteralArgumentBuilder;
+import net.minecraft.command.argument.EntityArgumentType;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.server.command.CommandManager;
+import net.minecraft.server.command.ServerCommandSource;
+import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.text.TranslatableText;
+import su226.orimod.components.Components;
+import su226.orimod.components.ISpiritLight;
 
-import net.minecraft.command.CommandBase;
-import net.minecraft.command.CommandException;
-import net.minecraft.command.ICommandSender;
-import net.minecraft.entity.player.EntityPlayerMP;
-import net.minecraft.server.MinecraftServer;
-import net.minecraft.util.text.TextComponentTranslation;
-import su226.orimod.capabilities.Capabilities;
-import su226.orimod.capabilities.ISpiritLight;
+import java.util.Collection;
 
-public class SpiritLightCommand extends CommandBase {
-  @Override
-  public String getName() {
-    return "spiritlight";
+public class SpiritLightCommand {
+  public static ArgumentBuilder<ServerCommandSource, LiteralArgumentBuilder<ServerCommandSource>> subCommandGet() {
+    return CommandManager.literal("get")
+      .requires(src -> src.hasPermissionLevel(2))
+      .then(CommandManager.argument("players", EntityArgumentType.players())
+      .executes(ctx -> {
+        int ret = -1;
+        for (PlayerEntity player : EntityArgumentType.getPlayers(ctx, "players")) {
+          int value = Components.SPIRIT_LIGHT.get(player).get();
+          if (ret == -1) {
+            ret = value;
+          }
+          ctx.getSource().sendFeedback(new TranslatableText("commands.orimod.spiritlight.success_get", player.getName(), value), false);
+        }
+        return ret;
+      }));
   }
 
-  @Override
-  public String getUsage(ICommandSender sender) {
-    return "commands.orimod.spiritlight.usage";
+  public static ArgumentBuilder<ServerCommandSource, LiteralArgumentBuilder<ServerCommandSource>> subCommandSet() {
+    return CommandManager.literal("set")
+      .requires(src -> src.hasPermissionLevel(2))
+      .then(CommandManager.argument("players", EntityArgumentType.players())
+      .then(CommandManager.argument("value", IntegerArgumentType.integer(0))
+      .executes(ctx -> {
+        Collection<ServerPlayerEntity> players = EntityArgumentType.getPlayers(ctx, "players");
+        int value = IntegerArgumentType.getInteger(ctx, "value");
+        for (PlayerEntity player : players) {
+          Components.SPIRIT_LIGHT.get(player).set(value);
+          ctx.getSource().sendFeedback(new TranslatableText("commands.orimod.spiritlight.success_set", player.getName(), value), false);
+        }
+        return players.size();
+      })));
   }
 
-  @Override
-  public void execute(MinecraftServer server, ICommandSender sender, String[] args) throws CommandException {
-    if (args.length != 3) {
-      sender.sendMessage(new TextComponentTranslation("commands.orimod.spiritlight.help_add"));
-      sender.sendMessage(new TextComponentTranslation("commands.orimod.spiritlight.help_set"));
-      return;
-    }
-    boolean isAdd = args[0].equals("add");
-    boolean isSet = args[0].equals("set");
-    if (!isAdd && !isSet) {
-      throw new CommandException("commands.orimod.spiritlight.failed_invaild_command", args[1]);
-    }
-    int count;
-    try {
-      count = Integer.parseInt(args[2]);
-    } catch (NumberFormatException e) {
-      throw new CommandException("commands.orimod.spiritlight.failed_invaild_number", args[2]);
-    }
-    List<EntityPlayerMP> players = getPlayers(server, sender, args[1]);
-    for (EntityPlayerMP player : players) {
-      ISpiritLight cap = player.getCapability(Capabilities.SPIRIT_LIGHT, null);
-      if (isAdd) {
-        cap.set(cap.get() + count);
-        sender.sendMessage(new TextComponentTranslation("commands.orimod.spiritlight.success_add", player.getName(), count));
-      } else {
-        cap.set(count);
-        sender.sendMessage(new TextComponentTranslation("commands.orimod.spiritlight.success_set", player.getName(), count));
-      }
-    }
+  public static ArgumentBuilder<ServerCommandSource, LiteralArgumentBuilder<ServerCommandSource>> subCommandAdd() {
+    return CommandManager.literal("add")
+      .requires(src -> src.hasPermissionLevel(2))
+      .then(CommandManager.argument("players", EntityArgumentType.players())
+      .then(CommandManager.argument("value", IntegerArgumentType.integer(0))
+      .executes(ctx -> {
+        Collection<ServerPlayerEntity> players = EntityArgumentType.getPlayers(ctx, "players");
+        int value = IntegerArgumentType.getInteger(ctx, "value");
+        for (PlayerEntity player : players) {
+          ISpiritLight component = Components.SPIRIT_LIGHT.get(player);
+          component.set(component.get() + value);
+          ctx.getSource().sendFeedback(new TranslatableText("commands.orimod.spiritlight.success_add", player.getName(), value), false);
+        }
+        return players.size();
+      })));
   }
 
-  @Override
-  public int getRequiredPermissionLevel() {
-    return 2;
+  public static ArgumentBuilder<ServerCommandSource, LiteralArgumentBuilder<ServerCommandSource>> subCommandMe() {
+    return CommandManager.literal("me")
+      .executes(ctx -> {
+        ServerPlayerEntity player = ctx.getSource().getPlayer();
+        int value = Components.SPIRIT_LIGHT.get(player).get();
+        ctx.getSource().sendFeedback(new TranslatableText("commands.orimod.spiritlight.success_me", value), false);
+        return value;
+      });
+  }
+
+  public static void register(CommandDispatcher<ServerCommandSource> dispatcher) {
+    dispatcher.register(CommandManager.literal("spiritlight")
+      .then(subCommandGet())
+      .then(subCommandSet())
+      .then(subCommandAdd())
+      .then(subCommandMe())
+    );
   }
 }

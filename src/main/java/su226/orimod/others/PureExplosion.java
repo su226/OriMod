@@ -1,14 +1,14 @@
 package su226.orimod.others;
 
 import net.minecraft.entity.Entity;
-import net.minecraft.world.Explosion;
+import net.minecraft.world.explosion.Explosion;
 
 public class PureExplosion extends Explosion {
-  public PureExplosion(Entity ent, double force) {
-    super(ent.world, ent, ent.posX, ent.posY, ent.posZ, (float)force, false, false);
+  public PureExplosion(Entity attacker, Entity owner, float force) {
+    super(owner.world, owner, null, null, attacker.getX(), attacker.getY(), attacker.getZ(), force, false, DestructionType.NONE);
   }
 
-  public PureExplosion(Entity ent, Entity owner, double force) {
-    super(ent.world, owner, ent.posX, ent.posY, ent.posZ, (float)force, false, false);
+  public void explode() {
+    this.collectBlocksAndDamageEntities();
   }
 }

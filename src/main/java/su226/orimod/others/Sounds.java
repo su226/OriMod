@@ -3,12 +3,13 @@ package su226.orimod.others;
 import java.util.ArrayList;
 import java.util.List;
 
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.SoundEvent;
-import net.minecraftforge.registries.IForgeRegistry;
+import net.minecraft.sound.SoundEvent;
+import net.minecraft.util.Identifier;
+import net.minecraft.util.Pair;
+import net.minecraft.util.registry.Registry;
 
 public class Sounds {
-  private static final List<SoundEvent> SOUNDS = new ArrayList<>();
+  private static final List<Pair<Identifier, SoundEvent>> SOUNDS = new ArrayList<>();
 
   public static final SoundEvent BASH_START = create("bash_start");
   public static final SoundEvent BASH_NO_TARGET = create("bash_no_target");
@@ -20,6 +21,8 @@ public class Sounds {
   public static final SoundEvent SPIRIT_FLAME_THROW = create("spirit_flame_throw");
   public static final SoundEvent GLIDE_START = create("glide_start");
   public static final SoundEvent GLIDE_END = create("glide_end");
+  public static final SoundEvent FLAP_START = create("flap_start");
+  public static final SoundEvent FLAP_END = create("flap_end");
   public static final SoundEvent SPIRIT_ARC_DRAW = create("spirit_arc_draw");
   public static final SoundEvent SPIRIT_ARC_SHOOT = create("spirit_arc_shoot");
   public static final SoundEvent ARROW_HIT_ENTITY = create("arrow_hit_entity");
@@ -35,15 +38,15 @@ public class Sounds {
   public static final SoundEvent STOMP_HIT = create("stomp_hit");
 
   private static SoundEvent create(String name) {
-    ResourceLocation loc = Util.getLocation(name);
-    SoundEvent sound = new SoundEvent(loc).setRegistryName(loc);
-    SOUNDS.add(sound);
+    Identifier loc = Util.getIdentifier(name);
+    SoundEvent sound = new SoundEvent(loc);
+    SOUNDS.add(new Pair<>(loc, sound));
     return sound;
   }
 
-  public static void register(IForgeRegistry<SoundEvent> registry) {
-    for (SoundEvent sound : SOUNDS) {
-      registry.register(sound);
+  public static void register() {
+    for (Pair<Identifier, SoundEvent> pair : SOUNDS) {
+      Registry.register(Registry.SOUND_EVENT, pair.getLeft(), pair.getRight());
     }
   }
 }

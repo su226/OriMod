@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:block",
+  "pools": [
+    {
+      "rolls": 1,
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "orimod:spirit_smithing_table"
+        }
+      ],
+      "conditions": [
+        { "condition": "minecraft:survives_explosion" }
+      ]
+    }
+  ]
+}
+

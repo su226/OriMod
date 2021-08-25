@@ -1,6 +1,6 @@
 {
   "parent": "item/generated",
   "textures": {
-    "layer0": "orimod:items/shard"
+    "layer0": "orimod:item/shard"
   }
 }

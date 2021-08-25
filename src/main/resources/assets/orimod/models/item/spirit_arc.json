@@ -1,7 +1,7 @@
 {
   "parent": "item/generated",
   "textures": {
-    "layer0": "orimod:items/spirit_arc"
+    "layer0": "orimod:item/spirit_arc"
   },
   "display": {
     "thirdperson_righthand": {

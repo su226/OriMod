@@ -1,9 +1,10 @@
 package su226.orimod.commands;
 
-import net.minecraftforge.fml.common.event.FMLServerStartingEvent;
+import com.mojang.brigadier.CommandDispatcher;
+import net.minecraft.server.command.ServerCommandSource;
 
 public class Commands {
-  public static void register(FMLServerStartingEvent event) {
-    event.registerServerCommand(new SpiritLightCommand());
+  public static void register(CommandDispatcher<ServerCommandSource> dispatcher, boolean dedicated) {
+    SpiritLightCommand.register(dispatcher);
   }
 }

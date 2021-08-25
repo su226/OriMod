@@ -1,219 +1,192 @@
 package su226.orimod;
 
-import net.minecraftforge.common.config.Config.LangKey;
-import net.minecraftforge.common.config.Config.RangeDouble;
-import net.minecraftforge.common.config.Config.RangeInt;
-import net.minecraftforge.common.config.Config.RequiresMcRestart;
+import me.shedaniel.autoconfig.ConfigData;
+import me.shedaniel.autoconfig.annotation.ConfigEntry.Gui.CollapsibleObject;
+import me.shedaniel.autoconfig.annotation.ConfigEntry.Gui.Tooltip;
+import me.shedaniel.cloth.clothconfig.shadowed.blue.endless.jankson.Comment;
 
-@net.minecraftforge.common.config.Config(modid = Mod.MODID)
-public class Config {
-  @RequiresMcRestart
-  @LangKey("config.orimod.3d_model")
-  public static boolean ENABLE_3D = true;
+@me.shedaniel.autoconfig.annotation.Config(name = "orimod")
+public class Config implements ConfigData {
+  @Tooltip
+  @Comment("Enable full-3d model for supported items")
+  public boolean enable_3d = true;
+  @Tooltip
+  @Comment("Edge glow color for 3d models, 32-bit number in ARGB order")
+  public int glow_color = 0x8899ccff;
+  @Tooltip
+  @Comment("Max interval for double click, in ticks.")
+  public int double_click_max_interval = 5;
 
-  @LangKey("config.orimod.glow_color")
-  public static int GLOW_COLOR = 0x8899ccff;
-
-  @LangKey("config.orimod.tools")
-  public static Tools TOOLS = new Tools();
-
-  @LangKey("config.orimod.double_click_max_interval")
-  public static int DOUBLE_CLICK_MAX_INTERVAL = 5;
-
+  @Tooltip
+  @CollapsibleObject
+  @Comment("Config for tools, affect on all vanilla-like tools")
+  public Tools tools = new Tools();
   public static class Tools {
-    @RequiresMcRestart
-    @LangKey("config.orimod.tools.harvest_level")
-    @RangeInt(min = 0)
-    public int HARVEST_LEVEL = 4;
-  
-    @RequiresMcRestart
-    @LangKey("config.orimod.tools.efficiency")
-    @RangeDouble(min = 0)
-    public double EFFICIENCY = 12;
-  
-    @RequiresMcRestart
-    @LangKey("config.orimod.tools.base_damage")
-    @RangeDouble(min = 0)
-    public double DAMAGE = 4;
-  
-    @RequiresMcRestart
-    @LangKey("config.orimod.tools.enchantability")
-    @RangeInt(min = 0)
-    public int ENCHANTABILITY = 22;
+    @Tooltip
+    public int harvest_level = 4;
+    @Tooltip
+    public float efficiency = 12;
+    @Tooltip
+    public float damage = 4;
+    @Tooltip
+    public int enchantability = 22;
   }
 
-  @LangKey("config.orimod.spirit_flame")
-  public static SpiritFlame SPIRIT_FLAME = new SpiritFlame();
-
+  @Tooltip
+  @CollapsibleObject
+  @Comment("Harvest level for tools, Wood/Gold: 0, Stone: 1, Iron: 2, Diamond: 3, Cobalt (from Tinker's Construct): 4")
+  public SpiritFlame spirit_flame = new SpiritFlame();
   public static class SpiritFlame {
-    @LangKey("config.orimod.spirit_flame.radius")
-    @RangeDouble(min = 0)
-    public double RADIUS = 5;
-  
-    @LangKey("config.orimod.spirit_flame.targets")
-    @RangeInt(min = 1)
-    public int TARGETS = 1;
-
-    @LangKey("config.orimod.spirit_flame.damage")
-    @RangeDouble(min = 0)
-    public double DAMAGE = 6;
-  
-    @LangKey("config.orimod.spirit_flame.ignore_pets")
-    public boolean IGNORE_PETS = true;    
-
-    @LangKey("config.orimod.spirit_flame.explosion_force")
-    @RangeDouble(min = 0)
-    public double EXPLOSION_FORCE = 4;
-
-    @LangKey("config.orimod.spirit_flame.charge_duration")
-    @RangeInt(min = 0)
-    public int CHARGE_DURATION = 30;
+    @Tooltip
+    @Comment("Efficiency for tools, Wood: 2, Stone: 4, Iron: 6, Diamond: 8, Gold: 12")
+    public double radius = 5;
+    @Tooltip
+    @Comment("Base damage for tools, +4 for sword damage, Wood/Gold: 0, Stone: 1, Iron: 2, Diamond: 3")
+    public int targets = 1;
+    @Tooltip
+    @Comment("Enchantability for tools, higher for easier enchanting, Wood: 15, Stone: 5, Iron: 14, Diamond: 10, Gold: 22")
+    public float damage = 6;
+    @Tooltip
+    @Comment("Config for spirit flame")
+    public boolean ignore_pets = true;
+    @Tooltip
+    @Comment("Radius for spirit flame, in blocks")
+    public float explosion_force = 4;
+    @Tooltip
+    @Comment("How many targets can spirit flame attack at the same time")
+    public int charge_duration = 30;
   }
 
-  @LangKey("config.orimod.bash")
-  public static Bash BASH = new Bash();
-
+  @Tooltip
+  @CollapsibleObject
+  @Comment("Damage dealt from spirit flame")
+  public Bash bash = new Bash();
   public static class Bash {
-    @LangKey("config.orimod.bash.multiplier")
-    @RangeDouble(min = 0)
-    public double MULTIPLIER = 1;
-
-    @LangKey("config.orimod.bash.range")
-    @RangeDouble(min = 0)
-    public double RANGE = 3;
-
-    @LangKey("config.orimod.bash.timeout")
-    @RangeInt(min = 0)
-    public int TIMEOUT = 40;
+    @Tooltip
+    @Comment("Whether spirit flame should ignore own pets")
+    public double multiplier = 1;
+    @Tooltip
+    @Comment("Explosion force for charge flame")
+    public double range = 3;
+    @Tooltip
+    @Comment("Charge duration for charge flame, in ticks")
+    public int timeout = 40;
   }
 
-  @LangKey("config.orimod.kuros_feather")
-  public static KurosFeather KUROS_FEATHER = new KurosFeather();
-
+  @Tooltip
+  @CollapsibleObject
+  @Comment("Config for bash")
+  public KurosFeather kuros_feather = new KurosFeather();
   public static class KurosFeather {
-    @LangKey("config.orimod.kuros_feather.fall_multiplier")
-    @RangeDouble(min = 0, max = 1)
-    public double FALL_MULTIPLIER = 0.8;
-
-    @LangKey("config.orimod.kuros_feather.speed_compensation")
-    @RangeDouble(min = 0)
-    public double SPEED_COMPENSATION = 0.1;
-
-    @LangKey("config.orimod.kuros_feather.length")
-    @RangeDouble(min = 0)
-    public double LENGTH = 5;
-
-    @LangKey("config.orimod.kuros_feather.range")
-    @RangeDouble(min = 0)
-    public double RANGE = 1;
-
-    @LangKey("config.orimod.kuros_feather.force")
-    @RangeDouble(min = 0)
-    public double FORCE = 1;
-
-    @LangKey("config.orimod.kuros_feather.cooldown")
-    @RangeInt(min = 0)
-    public int COOLDOWN = 20;
+    @Tooltip
+    @Comment("Velocity multiplier for bash, affect on both player and target entity")
+    public double fall_multiplier = 0.8;
+    @Tooltip
+    @Comment("How far can bash be acted on, in blocks")
+    public double speed_compensation = 0.1f;
+    @Tooltip
+    @Comment("Max time for bash process, in ticks")
+    public double length = 5;
+    @Tooltip
+    @Comment("Config for kuro's feather")
+    public double range = 1;
+    @Tooltip
+    @Comment("Falling speed multiplier for kuro's feather gliding")
+    public double force = 1;
+    @Tooltip
+    @Comment("Gliding speed compensation for kuro's feather gliding, because sneaking can decrease speed")
+    public int cooldown = 20;
   }
 
-  @LangKey("config.orimod.spirit_arc")
-  public static SpiritArc SPIRIT_ARC = new SpiritArc();
-
+  @Tooltip
+  @CollapsibleObject
+  @Comment("Config for spirit arc")
+  public SpiritArc spirit_arc = new SpiritArc();
   public static class SpiritArc {
-    @LangKey("config.orimod.spirit_arc.base_damage")
-    @RangeDouble(min = 0)
-    public double BASE_DAMAGE = 2;
-
-    @LangKey("config.orimod.spirit_arc.knockback")
-    @RangeInt(min = 0)
-    public int KNOCKBACK = 0;
-
-    @LangKey("config.orimod.spirit_arc.charge_duration")
-    @RangeInt(min = 0)
-    public int CHARGE_DURATION = 10;
-  
-    @LangKey("config.orimod.spirit_arc.velocity_multiplier")
-    @RangeDouble(min = 0)
-    public double VELOCITY_MULTIPLIER = 3;
+    @Tooltip
+    @Comment("Base damage for spirit arc, when velocity multiplier is 3, max damage will be about 4 times of base damage")
+    public double base_damage = 2;
+    @Tooltip
+    @Comment("Base knockback for spirit arc without enchantments")
+    public int knockback = 0;
+    @Tooltip
+    @Comment("Charge duration for spirit arc, in ticks")
+    public int charge_duration = 10;
+    @Tooltip
+    @Comment("Velocity Multiplier for spirit arc, affect damage along with base damage")
+    public float velocity_multiplier = 3;
   }
 
-  @LangKey("config.orimod.light_burst")
-  public static LightBurst LIGHT_BURST = new LightBurst();
-
+  @Tooltip
+  @CollapsibleObject
+  @Comment("Config for light burst")
+  public LightBurst light_burst = new LightBurst();
   public static class LightBurst {
-    @LangKey("config.orimod.light_burst.damage")
-    @RangeDouble(min = 0)
-    public double DAMAGE = 5;
-
-    @LangKey("config.orimod.light_burst.charge_duration")
-    @RangeInt(min = 0)
-    public int CHARGE_DURATION = 15;
-
-    @LangKey("config.orimod.light_burst.explosion_force")
-    @RangeDouble(min = 0)
-    public double EXPLOSION_FORCE = 3;
+    @Tooltip
+    @Comment("Damage to DIRECT hit entity for light burst")
+    public float damage = 5;
+    @Tooltip
+    @Comment("Charge duration for light burst, in ticks")
+    public int charge_duration = 15;
+    @Tooltip
+    @Comment("Explosion force for light burst")
+    public float explosion_force = 3;
   }
 
-  @LangKey("config.orimod.spirit_light")
-  public static SpiritLight SPIRIT_LIGHT = new SpiritLight();
-
+  @Tooltip
+  @CollapsibleObject
+  @Comment("Config for spirit light")
+  public SpiritLight spirit_light = new SpiritLight();
   public static class SpiritLight {
-    @LangKey("config.orimod.spirit_light.drop_multiplier")
-    @RangeDouble(min = 0)
-    public double DROP_MULITPLIER = 0.25;
-
-    @LangKey("config.orimod.spirit_light.death_penalty")
-    @RangeDouble(min = 0, max = 1)
-    public double DEATH_PENALTY = 0.5;
-
-    @LangKey("config.orimod.spirit_light.death_drop")
-    @RangeDouble(min = 0, max = 1)
-    public double DEATH_DROP = 0.5;
+    @Tooltip
+    @Comment("Drop multiplier for spirit light, multiply by max health for drop count.")
+    public double drop_multiplier = 0.25;
+    @Tooltip
+    @Comment("Keep ratio for spirit light when player dies.")
+    public double death_penalty = 0.5;
+    @Tooltip
+    @Comment("Drop ratio for the not keeping part of spirit light, others will be disappeared.")
+    public double death_drop = 0.5;
   }
 
-  @LangKey("config.orimod.jump_and_climb")
-  public static JumpAndClimb JUMP_AND_CLIMB = new JumpAndClimb();
-
+  @Tooltip
+  @CollapsibleObject
+  @Comment("Config for multi jumping, wall jumping and climbing.")
+  public JumpAndClimb jump_and_climb = new JumpAndClimb();
   public static class JumpAndClimb {
-    @LangKey("config.orimod.jump_and_climb.wall_velocity_fraction")
-    @RangeDouble(min = 0, max = 1)
-    public double WALL_VELOCITY_FRACTION = 0.75;
-
-    @LangKey("config.orimod.jump_and_climb.wall_fall_fraction")
-    @RangeDouble(min = 0, max = 1)
-    public double WALL_FALL_FRACTION = 0.75;
-
-    @LangKey("config.orimod.jump_and_climb.wall_thresold")
-    @RangeDouble(min = 0, max = 1)
-    public double WALL_THRESOLD = 0.01;
-
-    @LangKey("config.orimod.jump_and_climb.wall_jump_multiplier")
-    @RangeDouble(min = 0)
-    public double WALL_JUMP_MULTIPLIER = 1;
-
-    @LangKey("config.orimod.jump_and_climb.multi_jump_multiplier")
-    @RangeDouble(min = 0)
-    public double MULTI_JUMP_MULTIPLIER = 1;
-
-    @LangKey("config.orimod.jump_and_climb.climb_muliplier")
-    @RangeDouble(min = 0)
-    public double CLIMB_MULTIPLIER = 1;
+    @Tooltip
+    @Comment("Velocity fraction for wall jump when clinging to wall.")
+    public double wall_velocity_fraction = 0.75;
+    @Tooltip
+    @Comment("Fall distance fraction for wall jump when clinging to wall.")
+    public double wall_fall_fraction = 0.75;
+    @Tooltip
+    @Comment("Max distance to wall when judged as climbing")
+    public double wall_threshold = 0.01;
+    @Tooltip
+    @Comment("Jump multiplier for wall jump.")
+    public double wall_jump_multiplier = 1;
+    @Tooltip
+    @Comment("Jump multiplier for multi jump.")
+    public double multi_jump_multiplier = 1;
+    @Tooltip
+    @Comment("Velocity multiplier for climbing.")
+    public double climb_multiplier = 1;
   }
 
-  @LangKey("config.orimod.stomp")
-  public static Stomp STOMP = new Stomp();
-
+  @Tooltip
+  @CollapsibleObject
+  @Comment("Config for stomp")
+  public Stomp stomp = new Stomp();
   public static class Stomp {
-    @LangKey("config.orimod.stomp.force")
-    @RangeInt(min = 0)
-    public int FORCE = 3;
-
-    @LangKey("config.orimod.stomp.charge_time")
-    @RangeInt(min = 0)
-    public int CHARGE_TIME = 8;
-
-    @LangKey("config.orimod.stomp.velocity")
-    @RangeDouble(min = 0)
-    public int VELOCITY = 1;
+    @Tooltip
+    @Comment("Blast froce for stomp.")
+    public int force = 3;
+    @Tooltip
+    @Comment("Charge time for stomp in ticks.")
+    public int charge_time = 8;
+    @Tooltip
+    @Comment("Velocity for stomp.")
+    public int velocity = 1;
   }
 }

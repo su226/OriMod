@@ -1,48 +1,40 @@
 package su226.orimod;
 
-import net.minecraftforge.fml.common.SidedProxy;
-import net.minecraftforge.fml.common.Mod.EventHandler;
-import net.minecraftforge.fml.common.event.FMLInitializationEvent;
-import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
-import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
-import net.minecraftforge.fml.common.event.FMLServerStartingEvent;
-import net.minecraftforge.fml.common.network.NetworkRegistry;
-import net.minecraftforge.fml.common.network.simpleimpl.SimpleNetworkWrapper;
-import su226.orimod.commands.Commands;
-
+import me.shedaniel.autoconfig.AutoConfig;
+import me.shedaniel.autoconfig.serializer.JanksonConfigSerializer;
+import net.fabricmc.api.ModInitializer;
+import net.fabricmc.fabric.api.command.v1.CommandRegistrationCallback;
+import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
+import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import su226.orimod.blocks.Blocks;
+import su226.orimod.commands.Commands;
+import su226.orimod.entities.Entities;
+import su226.orimod.items.Items;
+import su226.orimod.others.Interfaces;
+import su226.orimod.others.Sounds;
+import su226.orimod.others.Stats;
+import su226.orimod.others.Trinkets;
+import su226.orimod.packets.Packets;
 
-@net.minecraftforge.fml.common.Mod(modid = Mod.MODID, name = Mod.NAME, version = Mod.VERSION)
-public class Mod {
-  public static final String MODID = "orimod";
-  public static final String NAME = "OriMod";
-  public static final String VERSION = "1.0.0";
+public class Mod implements ModInitializer {
+	public static final Logger LOG = LogManager.getLogger("OriMod");
+	public static Config CONFIG;
+	public static int tick;
 
-  public static Logger LOG;
-  @SidedProxy(clientSide = "su226.orimod.ClientProxy", serverSide = "su226.orimod.CommonProxy")
-  public static CommonProxy PROXY;
-  @net.minecraftforge.fml.common.Mod.Instance(Mod.MODID)
-  public static Mod INSTANCE;
-  public static final SimpleNetworkWrapper NETWORK = NetworkRegistry.INSTANCE.newSimpleChannel(Mod.MODID);
-
-  @EventHandler
-  public void preInit(FMLPreInitializationEvent event) {
-    LOG = event.getModLog();
-    PROXY.preInit();
-  }
-
-  @EventHandler
-  public void init(FMLInitializationEvent event) {
-    PROXY.init();
-  }
-
-  @EventHandler
-  public void postInit(FMLPostInitializationEvent event) {
-    PROXY.postInit();
-  }
-  
-  @EventHandler
-  public static void onServerStarting(FMLServerStartingEvent event) {
-    Commands.register(event);
-  }
+	@Override
+	public void onInitialize() {
+		AutoConfig.register(Config.class, JanksonConfigSerializer::new);
+		CONFIG = AutoConfig.getConfigHolder(Config.class).getConfig();
+		Blocks.register();
+		Entities.register();
+		Interfaces.register();
+		Items.register();
+		Packets.registerAllOnServer();
+		Sounds.register();
+		Stats.register();
+		Trinkets.register();
+		ServerTickEvents.START_SERVER_TICK.register(e -> tick++);
+		CommandRegistrationCallback.EVENT.register(Commands::register);
+	}
 }

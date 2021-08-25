@@ -1,6 +1,6 @@
 {
   "parent": "item/handheld",
   "textures": {
-    "layer0": "orimod:items/spirit_edge"
+    "layer0": "orimod:item/spirit_edge"
   }
 }

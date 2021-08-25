@@ -1,272 +1,207 @@
 package su226.orimod.entities;
 
-import net.minecraft.block.material.Material;
-import net.minecraft.block.state.IBlockState;
-import net.minecraft.client.renderer.BufferBuilder;
-import net.minecraft.client.renderer.GlStateManager;
-import net.minecraft.client.renderer.OpenGlHelper;
-import net.minecraft.client.renderer.Tessellator;
-import net.minecraft.client.renderer.entity.RenderManager;
-import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityTracker;
-import net.minecraft.entity.MoverType;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.init.SoundEvents;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.network.play.server.SPacketCollectItem;
-import net.minecraft.util.DamageSource;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.AxisAlignedBB;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.MathHelper;
+import com.mojang.blaze3d.platform.GlStateManager;
+import net.fabricmc.fabric.api.client.rendereregistry.v1.EntityRendererRegistry;
+import net.minecraft.client.render.*;
+import net.minecraft.client.render.entity.EntityRenderDispatcher;
+import net.minecraft.client.render.entity.EntityRenderer;
+import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.entity.*;
+import net.minecraft.entity.damage.DamageSource;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.nbt.NbtCompound;
+import net.minecraft.network.Packet;
+import net.minecraft.network.packet.s2c.play.EntitySpawnS2CPacket;
+import net.minecraft.sound.SoundEvents;
+import net.minecraft.tag.FluidTags;
+import net.minecraft.util.Identifier;
+import net.minecraft.util.math.*;
 import net.minecraft.world.World;
-import net.minecraft.world.WorldServer;
-import net.minecraftforge.fml.client.registry.IRenderFactory;
-import net.minecraftforge.fml.client.registry.RenderingRegistry;
-import net.minecraftforge.fml.common.registry.EntityEntry;
-import net.minecraftforge.fml.common.registry.EntityEntryBuilder;
-import net.minecraftforge.registries.IForgeRegistry;
-import su226.orimod.capabilities.Capabilities;
-import su226.orimod.capabilities.ISpiritLight;
+import su226.orimod.components.Components;
+import su226.orimod.others.IEntitySync;
 import su226.orimod.others.Util;
 
-import javax.annotation.Nonnull;
+public class SpiritLightOrb extends Entity implements IEntitySync {
+  public static class Render extends EntityRenderer<SpiritLightOrb> {
+    public static final Identifier TEXTURE = Util.getIdentifier("textures/entity/spirit_light.png");
 
-import org.lwjgl.opengl.GL11;
-
-public class SpiritLightOrb extends Entity {
-  public static class Render extends net.minecraft.client.renderer.entity.Render<SpiritLightOrb> {
-    public static final Factory FACTORY = new Factory();
-    public static final ResourceLocation TEXTURE = Util.getLocation("textures/entity/spirit_light.png");
-
-    private Render(RenderManager manager) {
-      super(manager);
-      this.shadowSize = 0.15F;
-      this.shadowOpaque = 0.75F;
+    public Render(EntityRenderDispatcher dispatcher, EntityRendererRegistry.Context context) {
+      super(dispatcher);
+      this.shadowRadius = 0.15f;
+      this.shadowOpacity = 0.75f;
     }
 
     @Override
-    public void doRender(@Nonnull SpiritLightOrb entity, double x, double y, double z, float yaw, float partialTicks) {
-      if (!this.renderOutlines) {
-        GlStateManager.disableLighting();
-        GlStateManager.pushMatrix();
-        GlStateManager.translate(x, y, z);
-        bindEntityTexture(entity);
-        GlStateManager.shadeModel(GL11.GL_SMOOTH);
-        GlStateManager.enableBlend();
-        GlStateManager.tryBlendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
-        GlStateManager.alphaFunc(GL11.GL_GREATER, 0f);
-        OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, 240, 240);
-
-        GlStateManager.translate(0, 0.1, 0);
-        GlStateManager.rotate(180 - renderManager.playerViewY, 0, 1, 0);
-        GlStateManager.rotate((renderManager.options.thirdPersonView == 2 ? -1 : 1) * -renderManager.playerViewX, 1, 0, 0);
-        GlStateManager.rotate((partialTicks + entity.ticksExisted) * 3, 0, 0, 1);
-        double scale = entity.value * 0.025 + 0.2;
-        GlStateManager.scale(scale, scale, scale);
-
-        Tessellator tessellator = Tessellator.getInstance();
-        BufferBuilder bufferbuilder = tessellator.getBuffer();
-        bufferbuilder.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX);
-        bufferbuilder.pos(-1, -1, 0.0D).tex(0, 0).endVertex();
-        bufferbuilder.pos(1, -1, 0.0D).tex(1, 0).endVertex();
-        bufferbuilder.pos(1, 1, 0.0D).tex(1, 1).endVertex();
-        bufferbuilder.pos(-1, 1, 0.0D).tex(0, 1).endVertex();
-        tessellator.draw();
-
-        GlStateManager.disableBlend();
-        GlStateManager.shadeModel(GL11.GL_FLAT);
-        GlStateManager.popMatrix();
-        GlStateManager.enableLighting();
-      }
-      super.doRender(entity, x, y, z, yaw, partialTicks);
+    protected int getBlockLight(SpiritLightOrb entity, BlockPos pos) {
+      return 15;
     }
 
     @Override
-    protected ResourceLocation getEntityTexture(@Nonnull SpiritLightOrb entity) {
+    public void render(SpiritLightOrb entity, float yaw, float tickDelta, MatrixStack mat, VertexConsumerProvider consumers, int light) {
+      mat.push();
+      mat.translate(0, 0.25, 0);
+      mat.multiply(this.dispatcher.getRotation());
+      Vector4f up = new Vector4f(0, 0, 1, 0);
+      up.transform(mat.peek().getModel());
+      mat.multiply(new Vec3f(up.getX(), up.getY(), up.getZ()).getDegreesQuaternion((entity.orbAge + tickDelta) * 3));
+      mat.multiply(new Quaternion(0, 180, 0, true));
+      float scale = entity.amount * 0.025f + 0.2f;
+      mat.scale(scale, scale, scale);
+      GlStateManager.enableDepthTest();
+      GlStateManager.enableBlend();
+      // New method cannot full-bright, I want to know why.
+      su226.orimod.others.Render.Legacy.square(mat, new Vec3d(-1, -1, 0), new Vec3d(1, -1, 0), new Vec3d(1, 1, 0), TEXTURE);
+      GlStateManager.disableBlend();
+      GlStateManager.disableDepthTest();
+      mat.pop();
+    }
+
+    @Override
+    public Identifier getTexture(SpiritLightOrb entity) {
       return TEXTURE;
     }
-
-    public static class Factory implements IRenderFactory<SpiritLightOrb> {
-      @Override
-      public net.minecraft.client.renderer.entity.Render<? super SpiritLightOrb> createRenderFor(RenderManager manager) {
-        return new Render(manager);
-      }
-    }
   }
-
   private static final int MAX_AGE = 6000;
   private static final double SEARCH_DISTANCE = 8;
-  public int value;
+  private int amount;
   private int lastCheck;
-  private int age;
+  private int orbAge;
   private int health = 5;
-  private EntityPlayer closest;
+  private PlayerEntity target;
 
-  public SpiritLightOrb(World world, double x, double y, double z, int value) {
-    super(world);
-    this.setSize(0.25F, 0.25F);
-    this.setPosition(x, y, z);
-    this.rotationYaw = Util.rand(360);
-    this.motionX = Util.rand(-0.2f, 0.2f);
-    this.motionY = Util.rand(0.4f);
-    this.motionZ = Util.rand(-0.2f, 0.2f);
-    this.value = value;
+  public SpiritLightOrb(Entity from, int amount) {
+    super(Entities.SPIRIT_LIGHT_ORB, from.world);
+    this.setPosition(from.getX(), from.getY(), from.getZ());
+    this.yaw = Util.rand(360);
+    this.setVelocity(Util.rand(-0.2, 0.2), Util.rand(0.4), Util.rand(-0.2, 0.2));
+    this.amount = amount;
   }
 
-  public SpiritLightOrb(World world) {
-    super(world);
-    this.setSize(0.25F, 0.25F);
+  public SpiritLightOrb(EntityType<? extends SpiritLightOrb> type, World world) {
+    super(type, world);
   }
 
   @Override
-  protected boolean canTriggerWalking() {
+  protected boolean canClimb() {
     return false;
   }
 
   @Override
-  protected void entityInit() {}
+  protected void initDataTracker() {}
 
   @Override
-  public void onUpdate() {
-    super.onUpdate();
+  public void tick() {
+    super.tick();
 
-    this.prevPosX = this.posX;
-    this.prevPosY = this.posY;
-    this.prevPosZ = this.posZ;
-
-    if (!this.hasNoGravity()) {
-      this.motionY -= 0.03;
+    this.prevX = this.getX();
+    this.prevY = this.getY();
+    this.prevZ = this.getZ();
+    if (this.isSubmergedIn(FluidTags.WATER)) {
+      this.applyWaterMovement();
+    } else if (!this.hasNoGravity()) {
+      this.setVelocity(this.getVelocity().add(0.0, -0.03, 0.0));
     }
 
-    if (this.world.getBlockState(new BlockPos(this)).getMaterial() == Material.LAVA) {
-      this.motionY = 0.2;
-      this.motionX = (this.rand.nextDouble() - this.rand.nextDouble()) * 0.2;
-      this.motionZ = (this.rand.nextDouble() - this.rand.nextDouble()) * 0.2;
-      this.playSound(SoundEvents.ENTITY_GENERIC_BURN, 0.4F, 2.0F + this.rand.nextFloat() * 0.4F);
+    if (this.world.getFluidState(this.getBlockPos()).isIn(FluidTags.LAVA)) {
+      this.setVelocity((this.random.nextDouble() - this.random.nextDouble()) * 0.2, 0.2, (this.random.nextDouble() - this.random.nextDouble()) * 0.2);
+      this.playSound(SoundEvents.ENTITY_GENERIC_BURN, 0.4f, 2 + this.random.nextFloat() * 0.4f);
     }
 
-    AxisAlignedBB bb = this.getEntityBoundingBox();
-    this.pushOutOfBlocks(this.posX, (bb.minY + bb.maxY) / 2, this.posZ);
+    if (!this.world.isSpaceEmpty(this.getBoundingBox())) {
+      this.pushOutOfBlocks(this.getX(), (this.getBoundingBox().minY + this.getBoundingBox().maxY) / 2, this.getZ());
+    }
 
-    if (this.lastCheck < this.age - 20 + this.getEntityId() % 100) {
-      if (this.closest == null || this.closest.getDistanceSq(this) > SEARCH_DISTANCE) {
-        this.closest = this.world.getClosestPlayerToEntity(this, SEARCH_DISTANCE);
+    if (this.lastCheck < this.orbAge - 20 + this.getEntityId() % 100) {
+      if (this.target == null || this.target.squaredDistanceTo(this) > SEARCH_DISTANCE * SEARCH_DISTANCE) {
+        this.target = this.world.getClosestPlayer(this, 8);
       }
-      this.lastCheck = this.age;
+      this.lastCheck = this.orbAge;
     }
 
-    if (this.closest != null && this.closest.isSpectator()) {
-      this.closest = null;
+    if (this.target != null && this.target.isSpectator()) {
+      this.target = null;
     }
 
-    if (this.closest != null) {
-      double distanceX = (this.closest.posX - this.posX) / 8.0;
-      double distanceY = (this.closest.posY + this.closest.getEyeHeight() / 2.0 - this.posY) / 8.0;
-      double distanceZ = (this.closest.posZ - this.posZ) / 8.0;
-      double distance = Math.sqrt(distanceX * distanceX + distanceY * distanceY + distanceZ * distanceZ);
-      if (distance < 1) {
-        double coefficient = closest.isSneaking() ? 3.0 : 0.1;
-        double offset = 1 - distance;
-        offset *= offset;
-        this.motionX += distanceX / distance * offset * coefficient;
-        this.motionY += distanceY / distance * offset * coefficient;
-        this.motionZ += distanceZ / distance * offset * coefficient;
+    if (this.target != null) {
+      Vec3d vec3d = new Vec3d(this.target.getX() - this.getX(), this.target.getY() + this.target.getStandingEyeHeight() / 2 - this.getY(), this.target.getZ() - this.getZ());
+      double squared = vec3d.lengthSquared();
+      if (squared < SEARCH_DISTANCE * SEARCH_DISTANCE) {
+        double f = 1 - Math.sqrt(squared) / 8;
+        this.setVelocity(this.getVelocity().add(vec3d.normalize().multiply(f * f * 0.1)));
       }
     }
 
-    this.move(MoverType.SELF, this.motionX, this.motionY, this.motionZ);
-
-    float slipperiness = 0.98F;
+    this.move(MovementType.SELF, this.getVelocity());
+    float fraction = 0.98f;
     if (this.onGround) {
-      BlockPos underPos = new BlockPos(MathHelper.floor(this.posX), MathHelper.floor(bb.minY) - 1, MathHelper.floor(this.posZ));
-      IBlockState underState = this.world.getBlockState(underPos);
-      slipperiness *= underState.getBlock().getSlipperiness(underState, this.world, underPos, this);
+      fraction = this.world.getBlockState(new BlockPos(this.getX(), this.getY() - 1.0D, this.getZ())).getBlock().getSlipperiness() * 0.98f;
     }
 
-    this.motionX *= slipperiness;
-    this.motionY *= 0.98;
-    this.motionZ *= slipperiness;
-
+    this.setVelocity(this.getVelocity().multiply(fraction, 0.98, fraction));
     if (this.onGround) {
-      this.motionY *= -0.9;
+      this.setVelocity(this.getVelocity().multiply(1, -0.9, 1));
     }
 
-    if (++this.age >= MAX_AGE) {
-      this.setDead();
+    if (++this.orbAge >= MAX_AGE) {
+      this.remove();
     }
   }
 
-  @Override
-  public boolean handleWaterMovement() {
-    return this.world.handleMaterialAcceleration(this.getEntityBoundingBox(), Material.WATER, this);
+  private void applyWaterMovement() {
+    Vec3d vec3d = this.getVelocity();
+    this.setVelocity(vec3d.x * 0.99, Math.min(vec3d.y + 0.0005, 0.05), vec3d.z * 0.99);
   }
 
   @Override
-  protected void dealFireDamage(int amount) {
-    this.attackEntityFrom(DamageSource.IN_FIRE, amount);
-  }
+  protected void onSwimmingStart() {}
 
   @Override
-  public boolean attackEntityFrom(@Nonnull DamageSource source, float amount) {
-    if (!this.world.isRemote && !this.isDead && !this.isEntityInvulnerable(source)) {
-      this.markVelocityChanged();
-      this.health = (int) (this.health - amount);
+  public boolean damage(DamageSource source, float amount) {
+    if (!this.isInvulnerableTo(source)) {
+      this.scheduleVelocityUpdate();
+      this.health = (int)(this.health - amount);
       if (this.health <= 0) {
-        this.setDead();
+        this.remove();
       }
     }
     return false;
   }
 
   @Override
-  public void writeEntityToNBT(@Nonnull NBTTagCompound compound) {
-    compound.setInteger("Health", this.health);
-    compound.setInteger("Age", this.age);
-    compound.setInteger("Value", this.value);
+  public void writeCustomDataToNbt(NbtCompound nbt) {
+    nbt.putShort("Health", (short)this.health);
+    nbt.putShort("Age", (short)this.orbAge);
+    nbt.putShort("Value", (short)this.amount);
   }
 
   @Override
-  public void readEntityFromNBT(@Nonnull NBTTagCompound compound) {
-    this.health = compound.getInteger("Health");
-    this.age = compound.getInteger("Age");
-    this.value = compound.getInteger("Value");
+  public void readCustomDataFromNbt(NbtCompound nbt) {
+    this.health = nbt.getShort("Health");
+    this.orbAge = nbt.getShort("Age");
+    this.amount = nbt.getShort("Value");
   }
 
   @Override
-  public boolean canBeAttackedWithItem() {
+  public void onPlayerCollision(PlayerEntity player) {
+    if (!this.world.isClient && player.experiencePickUpDelay == 0) {
+      player.experiencePickUpDelay = 2;
+      Components.SPIRIT_LIGHT.get(player).collect(this.amount);
+      this.remove();
+    }
+  }
+
+  @Override
+  public boolean isAttackable() {
     return false;
   }
 
   @Override
-  public void onCollideWithPlayer(@Nonnull EntityPlayer player) {
-    if (!this.world.isRemote) {
-      ISpiritLight light = player.getCapability(Capabilities.SPIRIT_LIGHT, null);
-      if (player.xpCooldown == 0) {
-        player.xpCooldown = 2;
-        if (!this.isDead && !this.world.isRemote) {
-          EntityTracker entitytracker = ((WorldServer) this.world).getEntityTracker();
-          entitytracker.sendToTracking(this, new SPacketCollectItem(this.getEntityId(), player.getEntityId(), 1));
-        }
-        if (this.value > 0) {
-          light.collect(this.value);
-        }
-        this.setDead();
-      }
-    }
-  }
-  
-  public static void register(IForgeRegistry<EntityEntry> registry) {
-    registry.register(EntityEntryBuilder.create()
-      .entity(SpiritLightOrb.class)
-      .id(Util.getLocation("spirit_light"), Entities.nextId())
-      .name(Util.getI18nKey("spirit_light"))
-      .tracker(128, 1, true)
-      .build());
+  public Packet<?> createSpawnPacket() {
+    return new EntitySpawnS2CPacket(this, this.amount);
   }
 
-  public static void registerRender() {
-    RenderingRegistry.registerEntityRenderingHandler(SpiritLightOrb.class, Render.FACTORY);
+  @Override
+  public void applySyncData(int data) {
+    this.amount = data;
   }
 }

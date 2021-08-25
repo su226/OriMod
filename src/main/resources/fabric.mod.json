@@ -1,0 +1,44 @@
+{
+  "schemaVersion": 1,
+  "id": "orimod",
+  "version": "${version}",
+  "name": "OriMod",
+  "description": "Add things from Ori and the Blind Forest and Ori and the Will of the Wisps.",
+  "authors": [ "su226" ],
+  "contact": {
+    "homepage": "https://www.curseforge.com/minecraft/mc-mods/orimod",
+    "sources": "https://github.com/su226/OriMod"
+  },
+  "license": "MIT",
+  "icon": "assets/orimod/icon.png",
+  "environment": "*",
+  "entrypoints": {
+    "main": [ "su226.orimod.Mod" ],
+    "client": [ "su226.orimod.ModClient" ],
+    "modmenu": [ "su226.orimod.others.ModMenuApi" ],
+    "cardinal-components": [ "su226.orimod.components.Components" ],
+    "rei_plugins": [ "su226.orimod.rei.ReiPlugin" ]
+  },
+  "mixins": [ "orimod.mixins.json" ],
+  "depends": {
+    "fabricloader": ">=0.11.3",
+    "fabric": "*",
+    "minecraft": "1.16.x",
+    "java": ">=16",
+    "cloth-config2": "*",
+    "trinkets": "*"
+  },
+  "suggests": {
+    "modmenu": "*",
+    "roughlyenoughitems-api": "*"
+  },
+  "custom": {
+    "cardinal-components": [
+      "orimod:bash",
+      "orimod:chargeable",
+      "orimod:cooldown",
+      "orimod:kuros_feather",
+      "orimod:spirit_light"
+    ]
+  }
+}

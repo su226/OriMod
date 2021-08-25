@@ -1,22 +1,22 @@
 package su226.orimod.items.shards;
 
-import net.minecraft.client.entity.EntityPlayerSP;
-import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.client.network.ClientPlayerEntity;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.math.AxisAlignedBB;
-import su226.orimod.Config;
+import net.minecraft.util.math.Box;
+import net.minecraft.util.math.Vec3d;
 import su226.orimod.Mod;
 import su226.orimod.blocks.SpiritSmithingTable;
 import su226.orimod.items.Items;
-import su226.orimod.messages.WallJumpMessage;
 import su226.orimod.others.Util;
+import su226.orimod.packets.WallJumpPacket;
 
-public class WallJumpBase extends Shard {
+public abstract class WallJumpBase extends Shard {
   public static class WallJump extends WallJumpBase {
     public WallJump() {
       super("wall_jump", 1, 2);
       SpiritSmithingTable.registerRecipe(new SpiritSmithingTable.Recipe(
-        new ItemStack(net.minecraft.init.Blocks.LADDER),
+        new ItemStack(net.minecraft.block.Blocks.LADDER),
         new ItemStack(this),
         300
       ));
@@ -32,74 +32,58 @@ public class WallJumpBase extends Shard {
         300
       ));
     }
-    
+
     @Override
-    public void onEquipableUpdate(EntityPlayer owner, boolean isMaxPriority) {
-      if (!isMaxPriority) {
+    public void tick(PlayerEntity player, ItemStack stack) {
+      super.tick(player, stack);
+      if (!player.isSneaking()) {
         return;
       }
-      super.onEquipableUpdate(owner, true);
-      if (!owner.isSneaking()) {
-        return;
-      }
-      AxisAlignedBB bb = owner.getEntityBoundingBox();
-      boolean clingXp = owner.world.collidesWithAnyBlock(bb.expand(Config.JUMP_AND_CLIMB.WALL_THRESOLD, 0, 0));
-      boolean clingXn = owner.world.collidesWithAnyBlock(bb.expand(-Config.JUMP_AND_CLIMB.WALL_THRESOLD, 0, 0));
-      boolean clingZp = owner.world.collidesWithAnyBlock(bb.expand(0, 0, Config.JUMP_AND_CLIMB.WALL_THRESOLD));
-      boolean clingZn = owner.world.collidesWithAnyBlock(bb.expand(0, 0, -Config.JUMP_AND_CLIMB.WALL_THRESOLD));
-      double rad = Math.toRadians(owner.rotationYaw);
+      Box bb = player.getBoundingBox();
+      boolean clingXp = !player.world.isSpaceEmpty(bb.stretch(Mod.CONFIG.jump_and_climb.wall_threshold, 0, 0));
+      boolean clingXn = !player.world.isSpaceEmpty(bb.stretch(-Mod.CONFIG.jump_and_climb.wall_threshold, 0, 0));
+      boolean clingZp = !player.world.isSpaceEmpty(bb.stretch(0, 0, Mod.CONFIG.jump_and_climb.wall_threshold));
+      boolean clingZn = !player.world.isSpaceEmpty(bb.stretch(0, 0, -Mod.CONFIG.jump_and_climb.wall_threshold));
+      double rad = Math.toRadians(player.yaw);
       double sin = Math.sin(rad);
       double cos = Math.cos(rad);
-      double moveX = (-owner.moveForward * sin + owner.moveStrafing * cos) * Config.JUMP_AND_CLIMB.CLIMB_MULTIPLIER;
-      double moveZ = (owner.moveForward * cos + owner.moveStrafing * sin) * Config.JUMP_AND_CLIMB.CLIMB_MULTIPLIER;
+      double moveX = -(player.forwardSpeed * sin + player.sidewaysSpeed * cos) * Mod.CONFIG.jump_and_climb.climb_multiplier;
+      double moveZ = (player.forwardSpeed * cos + player.sidewaysSpeed * sin) * Mod.CONFIG.jump_and_climb.climb_multiplier;
       if (clingXp || clingXn || clingZp || clingZn) {
-        owner.motionY = 0;
-        owner.fallDistance = 0;
-      }
-      if (clingXp && moveX > 0 && owner.motionY < moveX) {
-        owner.motionY = moveX;
-      }
-      if (clingXn && moveX < 0 && owner.motionY < -moveX) {
-        owner.motionY = -moveX;
-      }
-      if (clingZp && moveZ > 0 && owner.motionY < moveZ) {
-        owner.motionY = moveZ;
-      }
-      if (clingZn && moveZ < 0 && owner.motionY < -moveZ) {
-        owner.motionY = -moveZ;
+        Vec3d vec = player.getVelocity();
+        double y = Math.max(vec.y / 0.98, 0);
+        player.fallDistance = 0;
+        if (clingXp && moveX > 0 && y < moveX) {
+          y = moveX;
+        }
+        if (clingXn && moveX < 0 && y < -moveX) {
+          y = -moveX;
+        }
+        if (clingZp && moveZ > 0 && y < moveZ) {
+          y = moveZ;
+        }
+        if (clingZn && moveZ < 0 && y < -moveZ) {
+          y = -moveZ;
+        }
+        player.setVelocity(vec.x, y, vec.z);
       }
     }
   }
-
-  private int level;
 
   public WallJumpBase(String name, int level, int maxLevel) {
-    super(name, name, level, maxLevel);
-    this.level = level;
+    super("wall_jump_base", name, level, maxLevel);
   }
 
   @Override
-  public String getEquipableType() {
-    return "wall_jump_base";
-  }
-
-  @Override
-  public int getEquipablePriority() {
-    return this.level;
-  }
-
-  @Override
-  public void onEquipableUpdate(EntityPlayer owner, boolean isMaxPriority) {
-    if (!isMaxPriority) {
-      return;
+  public void tick(PlayerEntity player, ItemStack stack) {
+    boolean cling = !player.world.isSpaceEmpty(player.getBoundingBox().expand(Mod.CONFIG.jump_and_climb.wall_threshold, 0, Mod.CONFIG.jump_and_climb.wall_threshold));
+    if (player.world.isClient && cling && Util.canAirJump((ClientPlayerEntity) player)) {
+      new WallJumpPacket().sendToServer();
     }
-    boolean cling = owner.world.collidesWithAnyBlock(owner.getEntityBoundingBox().grow(Config.JUMP_AND_CLIMB.WALL_THRESOLD, 0, Config.JUMP_AND_CLIMB.WALL_THRESOLD));
-    if (owner.world.isRemote && cling && Util.canAirJump((EntityPlayerSP)owner)) {
-      Mod.NETWORK.sendToServer(new WallJumpMessage());
-    }
-    if (cling && owner.motionY < 0.0) {
-      owner.motionY *= Config.JUMP_AND_CLIMB.WALL_VELOCITY_FRACTION;
-      owner.fallDistance *= Config.JUMP_AND_CLIMB.WALL_FALL_FRACTION;
+    Vec3d vec = player.getVelocity();
+    if (cling && vec.y < 0.0) {
+      player.setVelocity(vec.x, vec.y * Mod.CONFIG.jump_and_climb.wall_velocity_fraction, vec.z);
+      player.fallDistance *= Mod.CONFIG.jump_and_climb.wall_fall_fraction;
     }
   }
 }
