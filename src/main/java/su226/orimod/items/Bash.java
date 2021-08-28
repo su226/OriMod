@@ -5,6 +5,7 @@ import java.util.List;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.OpenGlHelper;
 import net.minecraft.client.renderer.block.model.BakedQuad;
+import net.minecraft.client.renderer.block.model.ItemCameraTransforms.TransformType;
 import net.minecraft.client.renderer.tileentity.TileEntityItemStackRenderer;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLiving;
@@ -32,6 +33,10 @@ public class Bash extends Item {
   private static class Render extends TileEntityItemStackRenderer {
     @Override
     public void renderByItem(ItemStack stack, float unused) {
+      if (Models.transform == TransformType.FIRST_PERSON_RIGHT_HAND || Models.transform == TransformType.THIRD_PERSON_RIGHT_HAND) {
+        GlStateManager.rotate(180, 0, 1, 0);
+        GlStateManager.translate(-1, 0, -1);
+      }
       GlStateManager.disableLighting();
       GlStateManager.enableCull();
       OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, 240, 240);

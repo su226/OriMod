@@ -5,6 +5,7 @@ import java.util.List;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.OpenGlHelper;
 import net.minecraft.client.renderer.block.model.BakedQuad;
+import net.minecraft.client.renderer.block.model.ItemCameraTransforms.TransformType;
 import net.minecraft.client.renderer.tileentity.TileEntityItemStackRenderer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.ItemSword;
@@ -20,6 +21,10 @@ public class SpiritEdge extends ItemSword {
   private static class Render extends TileEntityItemStackRenderer {
     @Override
     public void renderByItem(ItemStack stack, float unused) {
+      if (Models.transform == TransformType.THIRD_PERSON_LEFT_HAND || Models.transform == TransformType.THIRD_PERSON_RIGHT_HAND) {
+        GlStateManager.rotate(-90, 0, 1, 0);
+        GlStateManager.translate(0, 0, -1);
+      }
       GlStateManager.disableLighting();
       GlStateManager.enableCull();
       OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, 240, 240);

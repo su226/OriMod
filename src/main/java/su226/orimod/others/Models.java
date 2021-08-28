@@ -8,6 +8,7 @@ import javax.vecmath.Matrix4f;
 
 import org.apache.commons.lang3.tuple.Pair;
 import org.lwjgl.opengl.GL11;
+import org.lwjgl.util.vector.Vector3f;
 
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
@@ -17,7 +18,9 @@ import net.minecraft.client.renderer.OpenGlHelper;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.renderer.block.model.IBakedModel;
+import net.minecraft.client.renderer.block.model.ItemCameraTransforms;
 import net.minecraft.client.renderer.block.model.ItemOverrideList;
+import net.minecraft.client.renderer.block.model.ItemTransformVec3f;
 import net.minecraft.client.renderer.block.model.ModelResourceLocation;
 import net.minecraft.client.renderer.block.model.ItemCameraTransforms.TransformType;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
@@ -51,12 +54,12 @@ public class Models {
   private static class PlaceholderLoader implements ICustomModelLoader {
     @Override
     public boolean accepts(ResourceLocation loc) {
-      return loc.getResourceDomain().equals(Mod.MODID) && loc.getResourcePath().equals("placeholder");
+      return loc.getResourceDomain().equals(Mod.MODID) && (loc.getResourcePath().equals("placeholder") || loc.getResourcePath().equals("placeholder_with_transform"));
     }
 
     @Override
     public IModel loadModel(ResourceLocation loc) throws Exception {
-      return (state, format, bakedTextureGetter) -> new PlaceholderModel();
+      return (state, format, bakedTextureGetter) -> loc.getResourcePath().equals("placeholder_with_transform") ? PlaceholderModel.WITH_TRANSFORM : PlaceholderModel.WITHOUT_TRANSFORM;
     }
 
     @Override
@@ -64,6 +67,25 @@ public class Models {
   }
 
   private static class PlaceholderModel implements IBakedModel {
+    @SuppressWarnings("deprecation")
+    private static final ItemCameraTransforms TRANSFORMS = new ItemCameraTransforms(
+      new ItemTransformVec3f(new Vector3f(0.0f, 0.0f, 0.0f), new Vector3f(0.0f, 0.1875f, 0.0625f), new Vector3f(0.55f, 0.55f, 0.55f)),
+      new ItemTransformVec3f(new Vector3f(0.0f, 0.0f, 0.0f), new Vector3f(0.0f, 0.1875f, 0.0625f), new Vector3f(0.55f, 0.55f, 0.55f)),
+      new ItemTransformVec3f(new Vector3f(0.0f, -90.0f, 25.0f), new Vector3f(0.070625f, 0.2f, 0.070625f), new Vector3f(0.68f, 0.68f, 0.68f)),
+      new ItemTransformVec3f(new Vector3f(0.0f, -90.0f, 25.0f), new Vector3f(0.070625f, 0.2f, 0.070625f), new Vector3f(0.68f, 0.68f, 0.68f)),
+      new ItemTransformVec3f(new Vector3f(0.0f, 180.0f, 0.0f), new Vector3f(0.0f, 0.8125f, 0.4375f), new Vector3f(1.0f, 1.0f, 1.0f)),
+      new ItemTransformVec3f(new Vector3f(0.0f, 0.0f, 0.0f), new Vector3f(0.0f, 0.0f, 0.0f), new Vector3f(1.0f, 1.0f, 1.0f)),
+      new ItemTransformVec3f(new Vector3f(0.0f, 0.0f, 0.0f), new Vector3f(0.0f, 0.125f, 0.0f), new Vector3f(0.5f, 0.5f, 0.5f)),
+      new ItemTransformVec3f(new Vector3f(0.0f, 180.0f, 0.0f), new Vector3f(0.0f, 0.0f, 0.0f), new Vector3f(1.0f, 1.0f, 1.0f))
+    );
+    public static final PlaceholderModel WITHOUT_TRANSFORM = new PlaceholderModel(false);
+    public static final PlaceholderModel WITH_TRANSFORM = new PlaceholderModel(true);
+    private final boolean withTransform;
+    
+    private PlaceholderModel(boolean withTransform) {
+      this.withTransform = withTransform;
+    }
+
     @Override
     public ItemOverrideList getOverrides() {
       return ItemOverrideList.NONE;
@@ -92,6 +114,11 @@ public class Models {
     @Override
     public boolean isGui3d() {
       return false;
+    }
+    
+    @Override
+    public ItemCameraTransforms getItemCameraTransforms() {
+      return this.withTransform ? TRANSFORMS : ItemCameraTransforms.DEFAULT;
     }
 
     @Override
@@ -221,6 +248,7 @@ public class Models {
 
     GlStateManager.disableLighting();
     OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, 240, 240);
+    GlStateManager.disableCull();
     GlStateManager.disableTexture2D();
     GlStateManager.depthMask(false);
     GlStateManager.shadeModel(GL11.GL_SMOOTH);
@@ -247,6 +275,7 @@ public class Models {
     GlStateManager.shadeModel(GL11.GL_FLAT);
     GlStateManager.depthMask(true);
     GlStateManager.enableTexture2D();
+    GlStateManager.enableCull();
     GlStateManager.enableLighting();
   }
 

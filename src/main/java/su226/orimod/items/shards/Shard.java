@@ -48,10 +48,6 @@ public abstract class Shard extends Item implements IEquipable {
 
     private void drawShard() {
       GlStateManager.pushMatrix();
-      if (Models.transform == TransformType.FIXED) {
-        GlStateManager.rotate(180, 0, 1, 0);
-        GlStateManager.translate(-1, 0, -1);
-      }
       Models.renderItemModel(MODEL, 0xcc192433);
       GlStateManager.disableLighting();
       OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, 240, 240);
@@ -64,7 +60,7 @@ public abstract class Shard extends Item implements IEquipable {
       GlStateManager.popMatrix();
     }
 
-    private static final int FINENESS = 15;
+    private static final int FINENESS = 16;
 
     private void drawShardGUI() {
       GlStateManager.disableTexture2D();
@@ -137,7 +133,7 @@ public abstract class Shard extends Item implements IEquipable {
 
   @SideOnly(Side.CLIENT)
   public void setModel() {
-    Models.setItemModel(this, "placeholder");
+    Models.setItemModel(this, "placeholder_with_transform");
     this.setTileEntityItemStackRenderer(new Render(this));
   }
 
