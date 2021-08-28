@@ -98,8 +98,12 @@ public class Bash extends Item {
 
   @Override
   public void onUsingTick(ItemStack stack, EntityLivingBase owner, int left) {
-    if (!owner.world.isRemote && left == 25) {
-      SoundMessage.play(owner, Sounds.BASH_TIMEOUT);
+    if (!owner.world.isRemote) {
+      if (left == 25) {
+        SoundMessage.play(owner, Sounds.BASH_TIMEOUT);
+      }
+      setVelocity(owner, 0, 0, 0);
+      setVelocity(stack.getCapability(Capabilities.HAS_ENTITY, null).getEntity(), 0, 0, 0);
     }
   }
 
