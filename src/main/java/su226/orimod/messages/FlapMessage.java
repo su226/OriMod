@@ -12,6 +12,7 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import su226.orimod.Config;
 import su226.orimod.Mod;
+import su226.orimod.others.Sounds;
 import su226.orimod.others.Util;
 
 public class FlapMessage implements IMessage {
@@ -25,7 +26,8 @@ public class FlapMessage implements IMessage {
     public IMessage onMessage(FlapMessage message, MessageContext ctx) {
       Minecraft mc = Minecraft.getMinecraft();
       mc.addScheduledTask(() -> {
-        Vec3d start = mc.world.getEntityByID(message.owner).getPositionEyes(1);
+        Entity owner = mc.world.getEntityByID(message.owner);
+        Vec3d start = owner.getPositionEyes(1);
         Vec3d delta = message.end.subtract(start).normalize();
         Vec3d base = Util.perpendicular(delta);
         for (int i = 0; i < EXTEND_FINENESS; i++) {
@@ -34,11 +36,11 @@ public class FlapMessage implements IMessage {
             Vec3d rotate = Util.rotate(delta, base, Math.PI * 2 * j / ROTATE_FINENESS).normalize();
             for (int k = 1; k <= RADIAL_FINENESS; k++) {
               Vec3d point = rotate.scale(Config.KUROS_FEATHER.RANGE * k / RADIAL_FINENESS).add(start);
-              // mc.effectRenderer.addEffct(new DebugParticle(mc.world, point, point.add(velocity), 0xff0000));;
               mc.world.spawnParticle(EnumParticleTypes.CLOUD, point.x, point.y, point.z, velocity.x, velocity.y, velocity.z);
             }
           }
         }
+        Util.playSound(owner, Sounds.FLAP_START);
       });
       return null;
     }

@@ -33,6 +33,8 @@ public class Sounds {
   public static final SoundEvent STOMP_START = create("stomp_start");
   public static final SoundEvent STOMP_FALL = create("stomp_fall");
   public static final SoundEvent STOMP_HIT = create("stomp_hit");
+  public static final SoundEvent FLAP_START = create("flap_start");
+  public static final SoundEvent FLAP_END = create("flap_end");
 
   private static SoundEvent create(String name) {
     ResourceLocation loc = Util.getLocation(name);

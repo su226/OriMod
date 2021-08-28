@@ -8,7 +8,6 @@
     "sounds": ["orimod:bash_no_target"]
   },
   "bash_timeout": {
-    "category": "player",
     "subtitle": "orimod.sound.bash_timeout",
     "sounds": ["orimod:bash_timeout"]
   },
@@ -54,17 +53,33 @@
   "glide_start": {
     "subtitle": "orimod.sound.glide_start",
     "sounds": [
-      "orimod:glide_1",
-      "orimod:glide_2",
-      "orimod:glide_3"
+      "orimod:glide_start_1",
+      "orimod:glide_start_2",
+      "orimod:glide_start_3"
     ]
   },
   "glide_end": {
     "subtitle": "orimod.sound.glide_end",
     "sounds": [
-      "orimod:glide_1",
-      "orimod:glide_2",
-      "orimod:glide_3"
+      "orimod:glide_end_1",
+      "orimod:glide_end_2",
+      "orimod:glide_end_3"
+    ]
+  },
+  "flap_start": {
+    "subtitle": "orimod.sound.flap",
+    "sounds": [
+      "orimod:glide_start_1",
+      "orimod:glide_start_2",
+      "orimod:glide_start_3"
+    ]
+  },
+  "flap_end": {
+    "subtitle": "orimod.sound.flap",
+    "sounds": [
+      "orimod:glide_end_1",
+      "orimod:glide_end_2",
+      "orimod:glide_end_3"
     ]
   },
   "spirit_arc_draw": {
