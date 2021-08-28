@@ -46,17 +46,13 @@ public interface ICooldown {
       int tick = this.entity == null ? 0 : this.entity.ticksExisted;
       if (data.cooldown == -1 ? data.lastAction != -1 : data.lastAction + data.cooldown < tick) {
         if (data.countLeft > 0) { // If it's in cooldown, decrease countLeft
-          if (--data.countLeft == 0) {
-            data.lastAction = tick;
-          }
+          data.countLeft--;
           return true;
         }
         return false;
       } else { // Otherwise, reset countLeft
-        data.countLeft = data.maxCount;
-        if (--data.countLeft == 0) {
-          data.lastAction = tick;
-        }
+        data.countLeft = data.maxCount - 1;
+        data.lastAction = tick;
         return true;
       }
     }
