@@ -15,6 +15,9 @@ public class ChargeFlameParticle extends Particle {
   public ChargeFlameParticle(World world, Vec3d pos, Vec3d velocity) {
     super(world, pos.x, pos.y, pos.z, velocity.x, velocity.y, velocity.z);
     this.setParticleTexture(ATLAS);
+    this.motionX = velocity.x / 10;
+    this.motionY = velocity.y / 10;
+    this.motionZ = velocity.z / 10;
   }
 
   @Override

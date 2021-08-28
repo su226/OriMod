@@ -25,7 +25,7 @@ public class ChargeFlameMessage implements IMessage {
         Vec3d pos = owner.getPositionEyes(1);
         for (int i = 0; i < 100; i++) {
           Vec3d velocity = new Vec3d(1, 0, 0).rotateYaw(Util.randAngle(2f)).rotatePitch(Util.randAngle(0.5f));
-          mc.effectRenderer.addEffect(new ChargeFlameParticle(mc.world, pos, velocity));
+          mc.effectRenderer.addEffect(new ChargeFlameParticle(mc.world, pos.add(velocity), velocity));
         }
         Util.playSound(owner, pos, Sounds.CHARGE_FLAME_END);
       });
